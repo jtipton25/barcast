@@ -1,0 +1,54 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\def\bm#1{\mbox{\boldmath $#1$}}
+
+\title{Barcast Model}
+\begin{document}
+\maketitle
+\section{Barcast Model}
+%
+\subsection{Data Model}
+%
+\begin{align}
+\bm{W}_t & = \bm{H}_t \bm{T}_t + \bm{B}_t + \bm{\eta}_t & \bm{\eta}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_t) & \bm{\Sigma}_t & = \left( \begin{array}{cc} \tau_I^2 \bm{I}_{N_{It}} & \bm{0}\\ \bm{0} & \tau_P^2 \bm{I}_{N_{Pt}} \end{array} \right)
+% \bm{W}_t & \sim \mbox{N} \left( \bm{H}_t \bm{T}_t + \bm{B}_t, \bm{\Sigma}_t \right)
+%
+% \bm{W}_t & = \left( \begin{array}{c} \bm{H}_{It}\\ \beta_1 \bm{H}_{Pt} \end{array} \right) \bm{T}_t + \left( \begin{array}{c} \bm{e}_{It}\\ \beta_0 \bm{1} + \bm{e}_{Pt} \end{array} \right)
+\end{align}
+%
+, $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \beta_1 \bm{H}_{Pt} \end{array} \right)$, $\bm{B}_t = \left( \begin{array}{c} \bm{0}_{N_{It}}\\ \beta_0 \bm{1}_{N_{Pt}} \end{array} \right)$, and $\bm{\Sigma}_t = \left( \begin{array}{cc} \tau_I^2 \bm{I}_{N_{It}} & \bm{0}\\ \bm{0} & \tau_P^2 \bm{I}_{N_{Pt}} \end{array} \right)$
+%
+\subsection{Process Model}
+%
+\begin{align}
+\bm{T}_t - \mu \bm{1} & = \alpha \left( \bm{T}_{t - 1} - \mu \bm{1} \right) + \bm{\epsilon}_t  & \bm{\epsilon}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_\epsilon) & \bm{\Sigma_\epsilon} & = \sigma^2 \exp{\left( - \phi \bm{D} \right)}
+\end{align}
+%
+where $\bm{D}$ is the distance matrix between observation points
+%
+\subsection{Parameter Model}
+%
+\begin{align}
+%
+\bm{T}_0 & \sim \mbox{N}\left( \tilde{\bm{\mu}}_0, \tilde{\bm{\Sigma}}_0 \right) & \tilde{\bm{\mu}}_0 & = \bm{0} & \tilde{\bm{\Sigma}}_0 & = \tilde{\sigma}^2_0 \bm{I}\\
+%
+\alpha & \sim \mbox{U}\left( 0, 1, \right)\\
+%
+\mu & \sim \mbox{N} \left( \mu_0, \sigma^2_0 \right) & \mbox{For PDSI } \mu_0 & = 0 & \sigma^2_0 & = 1 \\
+%
+\sigma^2 & \sim \mbox{IG}\left( \alpha_{\sigma^2}, \beta_{\sigma^2} \right)\\
+%
+\phi & \sim \mbox{IG}\left( \alpha_\phi, \beta_\phi \right)\\
+%
+\tau_I & \sim \mbox{IG}\left( \alpha_I, \beta_I \right)\\
+%
+\tau_P & \sim \mbox{IG}\left( \alpha_P, \beta_P \right)\\
+%
+\beta_1 & \sim \mbox{N} \left( \mu_{\beta_1}, \sigma^2_{\beta_1} \right) & \mu_{\beta_1} & = \left( \frac{(1 - \tau_p^2) (1 - \alpha^2)} {\sigma^2} \right)^{ - \frac{1} {2} } & \sigma^2_{\beta_1} & = 8 \\
+%
+\beta_0 & \sim \mbox{N} \left( \mu_{\beta_0}, \sigma^2_{\beta_0} \right) & \mu_{\beta_0} & = - \mu \beta_1 & \sigma^2_{\beta_1} & = 8 \\
+%
+\end{align}
+%
+\end{document}
