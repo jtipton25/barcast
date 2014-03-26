@@ -33,8 +33,6 @@ WI[t.o] <- pdsi$X261
 W <- cbind(WI, WP)
 H <- !is.na(W)
 
-
-
 year <- rep(1:t, times = (length(W) / t))
 
 ##
@@ -60,12 +58,17 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-n.mcmc <- 10000
+n.mcmc <- 1000
 n.burn <- floor(n.mcmc / 5)
 
 ##
 ## fit MCMC
 ##
+
+# HI <- !is.na(WI)
+# WI[HI] <- scale(WI[HI])
+# HP <- !is.na(WP)
+# WP[HP] <- scale(WP[HP])
 
 start <- Sys.time()
 out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.sigma.squared, beta.sigma.squared, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1)

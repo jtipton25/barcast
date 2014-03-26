@@ -10,14 +10,15 @@ make.output.plot <- function(out, resid = FALSE, file = 'filepath'){
 			lines(apply(out$X.save[, 1, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
 			lines(WI, col = adjustcolor('blue', alpha = 0.5))
 			# 			plot(X, type = 'l', col = 'blue')
-			plot(sqrt((WI[t.o] - apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean)[t.o])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
+			plot(sqrt((WI[t.o] - apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
 			plot(out$alpha.save[n.burn:n.mcmc], type = 'l', main = 'trace for alpha', ylab = 'alpha')
       plot(out$mu.save[n.burn:n.mcmc], type = 'l', main = 'trace for mu', ylab = 'mu')
-			plot(out$phi.save[n.burn:n.mcmc], type = 'l', main = 'trace for phi', ylab = 'phi')
+      # 			plot(out$phi.save[n.burn:n.mcmc], type = 'l', main = 'trace for phi', ylab = 'phi')
 			plot(out$tau.I.save[n.burn:n.mcmc], type = 'l', main = 'trace for tau^2_I', ylab = 'tau^2_I')
 			plot(out$tau.P.save[n.burn:n.mcmc], type = 'l', main = 'trace for tau^2_P', ylab = 'tau^2_P')
 			plot(out$beta.0.save[n.burn:n.mcmc], type = 'l', main = 'trace for beta_0', ylab = 'beta_0')
 			plot(out$beta.1.save[n.burn:n.mcmc], type = 'l', main = 'trace for beta_1', ylab = 'beta_1')
+			plot(out$sigma.squared.save[n.burn:n.mcmc], type = 'l', main = 'trace for sigma^2', ylab = 'sigma^2')
 	}
 # 	} else {
 # 			layout(matrix(1:6, nrow = 3, ncol = 2))
