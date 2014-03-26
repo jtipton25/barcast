@@ -78,7 +78,7 @@
 %
 \end{align*}
 %
-where $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \beta_1 \bm{H}_{Pt} \end{array} \right)$ and $\bm{B}_t = \left( \begin{array}{c} \bm{0}_{N_{It}}\\ \beta_0 \bm{1}_{N_{Pt}} \end{array} \right)$.
+where $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \beta_1 \bm{H}_{Pt} \end{array} \right)$ and $\bm{B}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{H}_{Pt} \end{array} \right) \left( \begin{array}{c} \bm{0}_{N_I}\\ \beta_0 \bm{1}_{N_P} \end{array} \right)$.
 %
 %%
 %% Process Model
@@ -367,6 +367,7 @@ which can be sampled using a Metropolis-Hastings algorithm using a properly tune
 \begin{itemize}
 %
 \item Predictive Process for $\Sigma_\epsilon$
+\item Include the number of trees used to create a chronology in the model
 \item ???
 %
 \end{itemize}

@@ -60,7 +60,7 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-n.mcmc <- 1000 #50000
+n.mcmc <- 10000
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -68,11 +68,10 @@ n.burn <- floor(n.mcmc / 5)
 ##
 
 start <- Sys.time()
-out <- mcmc(WI, WP, X, n.mcmc, mu.0, sigma.squared.0, alpha.alpha, beta.alpha, alpha.beta, beta.beta, alpha.epsilon, beta.epsilon)
-# out <- mcmc(Y, X, n.mcmc, mu.0, sigma.squared.0, alpha.alpha, beta.alpha, alpha.beta, beta.beta, alpha.epsilon, beta.epsilon)
+out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.sigma.squared, beta.sigma.squared, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1)
 finish <- Sys.time() - start
 finish 
 
 # x11()
-make.output.plot(out, model = 'simple')
+make.output.plot(out)
 # make.output.plot(out, model = 'simple', file = '~/treeRing/plots/simple.log.climate.png')
