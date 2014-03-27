@@ -37,7 +37,7 @@ where $\bm{W}_t = \left( \begin{array}{c} \bm{W}_{It} \\ \bm{W}_{Pt} \end{array}
 \subsection{Process Model}
 %
 \begin{align*}
-\bm{T}_t - \mu \bm{1} & = \alpha \left( \bm{T}_{t - 1} - \mu \bm{1} \right) + \bm{\epsilon}_t  & \bm{\epsilon}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_\epsilon) & \bm{\Sigma_\epsilon} & = \sigma^2 \exp{\left( - \phi \bm{D} \right)}
+\bm{T}_t - \mu \bm{1}_N & = \alpha \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) + \bm{\epsilon}_t  & \bm{\epsilon}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_\epsilon) & \bm{\Sigma_\epsilon} & = \sigma^2 \exp{\left( - \phi \bm{D} \right)}
 \end{align*}
 %
 where $\bm{D}$ is the distance matrix between observation points
@@ -101,14 +101,22 @@ Note that the prior values are set as the prior modes (e.g. $\mu_{\beta_1}$ is a
 %
 \left[ \bm{T}_0 \middle| \cdot \right] & \propto \left[ \bm{T}_1 \middle| \bm{T}_0, \mu, \alpha, \sigma^2, \phi \right] \left[ \bm{T}_0 \right] \\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_0 - \tilde{\bm{\mu}}_0 \right)^T \tilde{\bm{\Sigma}}_0^{ - 1} \left( \bm{T}_0 - \tilde{\bm{\mu}}_0 \right) \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{T}_0^T \left( \alpha^2 \bm{\Sigma}_\epsilon^{ - 1} + \tilde{\bm{\Sigma}}_0^{ - 1} \right) \bm{T}_0 - \bm{T}_0 \left( \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \left( 1 - \alpha \right) \mu \bm{1} \right) + \tilde{\bm{\Sigma}}_0^{ - 1} \tilde{\bm{\mu}} \right) \right]\right\} }
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{T}_0^T \left( \alpha^2 \bm{\Sigma}_\epsilon^{ - 1} + \tilde{\bm{\Sigma}}_0^{ - 1} \right) \bm{T}_0 - 2 \bm{T}_0^T \left( \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \left( 1 - \alpha \right) \mu \bm{1}_N \right) + \tilde{\bm{\Sigma}}_0^{ - 1} \tilde{\bm{\mu}} \right) \right]\right\} }
 %
 \end{align*}
 % 
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \alpha^2 \bm{\Sigma}_\epsilon^{ - 1} + \tilde{\bm{\Sigma}}_0^{ - 1} \right)^{ - 1}$ and $\bm{b} = \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \left( 1 - \alpha \right) \mu \bm{1} \right) + \tilde{\bm{\Sigma}}_0^{ - 1} \tilde{\bm{\mu}}$.
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \alpha^2 \bm{\Sigma}_\epsilon^{ - 1} + \tilde{\bm{\Sigma}}_0^{ - 1} \right)^{ - 1}\\
+%
+\bm{b} & = \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \left( 1 - \alpha \right) \mu \bm{1}_N \right) + \tilde{\bm{\Sigma}}_0^{ - 1} \tilde{\bm{\mu}}.
+%
+\end{align*}
 %
 \subsection{Full Conditional for $\bm{T}_t$}
 %
@@ -118,17 +126,24 @@ For $t = 1, \ldots T - 1$,
 %
 \left[ \bm{T}_t \middle| \cdot \right] & \propto \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \bm{T}_{t + 1} \middle| \bm{T}_t, \mu, \alpha, \sigma^2, \phi \right]\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t - \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t - \bm{B}_t \right)  \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_{t + 1} - \alpha \bm{T}_t - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t + 1} - \alpha \bm{T}_t - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right)  \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_{t + 1} - \alpha \bm{T}_t - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t + 1} - \alpha \bm{T}_t - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \bm{T}_t^T \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \bm{H}_t + \left( \alpha^2 + 1 \right) \bm{\Sigma}_\epsilon^{ - 1} \right) \bm{T}_t \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \bm{T}_t^T \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \bm{B}_t \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{t - 1} + \left( 1 - \alpha \right) \mu \bm{1} \right) + \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t + 1} + \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }
+& \hspace{6mm} \times \exp{ \left\{ - \bm{T}_t^T \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \bm{B}_t \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{t - 1} + \left( 1 - \alpha \right) \mu \bm{1}_N \right) + \alpha \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t + 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right) \right\} }
 %
 \end{align*}
 %
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \bm{H}_t + \left( \alpha^2 + 1 \right) \bm{\Sigma}_\epsilon^{ - 1} \right)^{ - 1}$ and $\bm{b} = \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \bm{B}_t \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \left( \bm{T}_{t + 1} + \bm{T}_{t - 1} \right) + \left( 1 - \alpha \right)^2 \mu \bm{1} \right) $.\\
-\\
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \bm{H}_t + \left( \alpha^2 + 1 \right) \bm{\Sigma}_\epsilon^{ - 1} \right)^{ - 1} \\ 
+%
+\bm{b} & = \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \bm{B}_t \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \left( \bm{T}_{t + 1} + \bm{T}_{t - 1} \right) + \left( 1 - \alpha \right)^2 \mu \bm{1}_N \right).\\
+%
+\end{align*}
 %
 For $t = T$,
 %
@@ -137,14 +152,21 @@ For $t = T$,
 \left[ \bm{T}_T \middle| \cdot \right] & \propto \left[ \bm{W}_T \middle| \bm{T}_T, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_T \middle| \bm{T}_{T - 1}, \mu, \alpha, \sigma^2, \phi \right] \\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_T - \left( \bm{H}_T \bm{T}_T - \bm{B}_T \right) \right)^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \left( \bm{H}_T \bm{T}_T - \bm{B}_T \right)  \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \bm{T}_T^T \left(\bm{H}_T^T \bm{\Sigma}_T^{ - 1} \bm{H}_T +  \bm{\Sigma}_\epsilon^{ - 1} \right) \bm{T}_T \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \bm{T}_T^T \left( \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \bm{B}_T \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{T - 1} + \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }
+& \hspace{6mm} \times \exp{ \left\{ - \bm{T}_T^T \left( \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \bm{B}_T \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{T - 1} + \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right) \right\} }
 %
 \end{align*}
 %
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \bm{H}_T +  \bm{\Sigma}_\epsilon^{ - 1} \right)^{ - 1}$ and $\bm{b} =  \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \bm{B}_T \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{T - 1} + \left( 1 - \alpha \right) \mu \bm{1} \right)$.
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \bm{H}_T +  \bm{\Sigma}_\epsilon^{ - 1} \right)^{ - 1}\\
+%
+\bm{b} & =  \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \bm{B}_T \right) + \bm{\Sigma}_\epsilon^{ - 1} \left( \alpha \bm{T}_{T - 1} + \left( 1 - \alpha \right) \mu \bm{1}_N \right).\\
+%
+\end{align*}
 %
 %%
 %% Full Conditional for Beta_0
@@ -157,13 +179,22 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( 
 \left[ \beta_0 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \beta_0 \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \beta_0 - \mu_{\beta_0} \right)^T \bm{\Sigma}_{\beta_0}^{ - 1} \left( \beta_0 - \mu_{\beta_0} \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \frac{ \left( \beta_0 - \mu_{\beta_0} \right)^2 } {\sigma^2_{\beta_0}} \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \beta_0^2 \left( \sum_{t = 1}^T \bm{1}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{1} + \bm{\Sigma}_{\beta_0}^{ - 1} \right) - \beta_0 \left( \sum_{t = 1}^T \bm{1}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} \right) + \bm{\Sigma}_{\beta_0}^{ - 1} \mu_{\beta_0} \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \beta_0^2 \left( \sum_{t = 1}^T \bm{1}_{N_{Pt}}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{1}_{N_{Pt}} + \frac{1} {\sigma^2_{\beta_0}}  \right) - \beta_0 \left( \sum_{t = 1}^T \bm{1}_{N_{Pt}}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_t \right) + \frac{\mu_{\beta_0}} {\sigma^2_{\beta_0}} \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \beta_0^2 \left( \frac{M_P} {\tau^2_P} + \frac{1} {\sigma^2_{\beta_0}} \right) - \beta_0 \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \bm{1}_{N_{Pt}}^T \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_t \right) + \frac{\mu_{\beta_0}} {\sigma^2_{\beta_0}} \right) \right\} }\\
 %
 \end{align*}
 %
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \sum_{t = 1}^T \bm{1}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{1} + \bm{\Sigma}_{\beta_0}^{ - 1} \right)^{ - 1}$ and $\bm{b} = \sum_{t = 1}^T \bm{1}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} \right)  + \bm{\Sigma}_{\beta_0}^{ - 1} \mu_{\beta_0}$. Note that $\beta_0$ is univariate so this is really a 1-d density.
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \frac{M_P} {\tau^2_P} + \frac{1} {\sigma^2_{\beta_0}} \right)^{ - 1}\\
+%
+\bm{b} & = \frac{1} {\tau^2_P} \sum_{t = 1}^T \bm{1}_{N_{Pt}}^T \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_t \right)  + \frac{\mu_{\beta_0}} {\sigma^2_{\beta_0}}.\\
+%
+\end{align*}
 %
 %%
 %% Full Conditional for Beta_1
@@ -176,14 +207,28 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( 
 \left[ \beta_1 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \beta_1 \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \beta_1 - \mu_{\beta_1} \right)^T \bm{\Sigma}_{\beta_1}^{ - 1} \left( \beta_1 - \mu_{\beta_1} \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \frac{\left( \beta_1 - \mu_{\beta_1} \right)^2} {\sigma^2_{\beta_1}} \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \beta_1^2 \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_{Pt} \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} \bm{T}_{Pt} \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \beta_1 \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_{Pt} \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_0 \bm{1} \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \mu_{\beta_1} \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \beta_1^2 \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} \bm{T}_t \right) + \frac{1} {\sigma^2_{\beta_1}} \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \beta_1 \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_0 \bm{1}_{N_{Pt}} \right) + \frac{\mu_{\beta_1}} {\sigma^2_{\beta_1}} \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \beta_1^2 \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} \bm{T}_t \right) + \frac{1} {\sigma^2_{\beta_1}} \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \beta_1 \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{W}_{Pt} - \beta_0 \bm{1}_{N_{Pt}} \right) + \frac{\mu_{\beta_1}} {\sigma^2_{\beta_1}} \right) \right\} }\\
 %
 \end{align*}
 %
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_{Pt} \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} \bm{T}_{Pt} \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \right)^{ - 1}$ and $\bm{b} = \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_{Pt} \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_0 \bm{1} \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \mu_{\beta_1}$. Note that $\beta_0$ is univariate so this is really a 1-d density.
+% which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} \bm{T}_t \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \right)^{ - 1}$ and $\bm{b} = \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_0 \bm{1} \right) + \bm{\Sigma}_{\beta_1}^{ - 1} \mu_{\beta_1}$. Note that $\beta_0$ is univariate so this is really a 1-d density.
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{H}_{Pt} \bm{T}_t \right) + \frac{1} {\sigma^2_{\beta_1}} \right)^{ - 1}\\
+%
+\bm{b} & = \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{W}_{Pt} - \beta_0 \bm{1}_{N_{Pt}} \right) + \frac{\mu_{\beta_1}} {\sigma^2_{\beta_1}}.\\
+%
+\end{align*}
+%
+NOTE: My devivation includes $\bm{H}_{Pt}$ in the $\bm{A}^{ - 1}$ and $\bm{b}$ terms but is not present in Martin's paper... This is worth pursuing futher. It seems that Martin uses $\bm{T}_{Pt}$ to denote $\bm{H}_{Pt} \bm{T}_t$ ??
 %
 %%
 %% Full Condtional for mu
@@ -195,14 +240,25 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( 
 %
 \left[ \mu \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \mu \right] \\
 %
-& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \frac{\left( \mu - \mu_0 \right)^2} {\sigma^2_0} \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \mu^2 \left( \sum_{t = 1}^T \left( 1 - \alpha \right)^2 \bm{1}^T \bm{\Sigma}_\epsilon^{ - 1} \bm{1} + \frac{1} {\sigma^2_0} \right) - \mu \left( \left( 1 - \alpha \right) \bm{1}^T \bm{\Sigma}_\epsilon^{ - 1} \sum_{t = 1}^T \left( \bm{T}_t - \alpha \bm{T}_{t - 1} \right) + \frac{\mu_0} {\sigma^2_0} \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \mu^2 \left( \sum_{t = 1}^T \left( 1 - \alpha \right)^2 \bm{1}_N^T \bm{\Sigma}_\epsilon^{ - 1} \bm{1}_N + \frac{1} {\sigma^2_0} \right) - \mu \left( \left( 1 - \alpha \right) \bm{1}_N^T \bm{\Sigma}_\epsilon^{ - 1} \sum_{t = 1}^T \left( \bm{T}_t - \alpha \bm{T}_{t - 1} \right) + \frac{\mu_0} {\sigma^2_0} \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \mu^2 \left( T \left( 1 - \alpha \right)^2 \frac{N} {\sigma^2} + \frac{1} {\sigma^2_0} \right) - \mu \left( \frac{\left( 1 - \alpha \right)} {\sigma^2} \bm{1}_N \sum_{t = 1}^T \left( \bm{T}_t - \alpha \bm{T}_{t - 1} \right) + \frac{\mu_0} {\sigma^2_0} \right) \right\} }\\
 %
 \end{align*}
 %
-which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( \sum_{t = 1}^T \left( 1 - \alpha \right)^2 \bm{1}^T \bm{\Sigma}_\epsilon^{ - 1} \bm{1} + \frac{1} {\sigma^2_0} \right)^{ - 1}$ and $\bm{b} = \left( 1 - \alpha \right) \bm{1}^T \bm{\Sigma}_\epsilon^{ - 1} \sum_{t = 1}^T \left( \bm{T}_t - \alpha \bm{T}_{t - 1} \right) + \frac{\mu_0} {\sigma^2_0}$.
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with 
+%
+\begin{align*}
+\bm{A}^{ - 1} & = \left( T \left( 1 - \alpha \right)^2 \frac{N} {\sigma^2} + \frac{1} {\sigma^2_0} \right)^{ - 1}\\
+%
+\bm{b} & = \frac{\left( 1 - \alpha \right)} {\sigma^2} \bm{1}_N^T \sum_{t = 1}^T \left( \bm{T}_t - \alpha \bm{T}_{t - 1} \right) + \frac{\mu_0} {\sigma^2_0}\\
+%
+\end{align*}
+%
+where $N = N_I + N_P = 33$ for the Hudson Valley PDSI
 %
 %%
 %% Full Condtional for alpha
@@ -214,13 +270,24 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left( 
 %
 \left[ \alpha \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \alpha \right]\\
 %
-& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} } I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
+& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} } I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \alpha^2 \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t - 1} - \mu \bm{1} \right) - \alpha \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \mu \bm{1} \right) \right\} } I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
+& \propto \exp{ \left\{ - \frac{1} {2} \alpha^2 \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) - \alpha \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \mu \bm{1}_N \right) \right\} } \\
+& \hspace{6mm} \times I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \alpha^2 \frac{1} {\sigma^2} \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) - \alpha \frac{1} {\sigma^2} \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \left( \bm{T}_t - \mu \bm{1}_N \right) \right\} } \\
+& \hspace{6mm} \times I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
 %
 \end{align*}
 %
-which is truncated N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} = \left(\sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_{t - 1} - \mu \bm{1} \right) \right)^{ - 1}$ and $\bm{b} = \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \mu \bm{1} \right)$, restricted to $\alpha \in \left( 0, 1 \right)$.
+which is truncated N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$), , restricted to $\alpha \in \left( 0, 1 \right)$,  with \\
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \frac{1} {\sigma^2} \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) \right)^{ - 1}\\
+%
+\bm{b} & = \frac{1} {\sigma^2} \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \left( \bm{T}_t - \mu \bm{1}_N \right).
+%
+\end{align*}
 %
 %%
 %% Full conditional for tau^2_I
@@ -235,14 +302,14 @@ which is truncated N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} =
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_t \right|^{ - \frac{1} {2}} \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \tau^2_I \right)^{ - \alpha_I - 1 } \exp{ \left\{ \frac{\beta_I} {\tau^2_I} \right\} }\\
 %
-& \propto \left( \tau^2_I \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{It}} \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} + \bm{B}_{It} \right) \right)^T \left( \frac{1} {\tau^2_I} \bm{I}_{N_{It}} \right)^{ - 1} \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} + \bm{B}_{It} \right) \right) \right\} }\\
+& \propto \left( \tau^2_I \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{It}} \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t + \bm{B}_{It} \right) \right)^T \bm{\Sigma}_{It}^{ - 1} \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t + \bm{B}_{It} \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \tau^2_I \right)^{ - \alpha_I - 1 } \exp{ \left\{ \frac{\beta_I} {\tau^2_I} \right\} }\\
 %
-& \propto \left( \tau^2_I \right)^{ - \alpha_I - \frac{1} {2} \sum_{t = 1}^T N_{It} - 1 } \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right)^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right) \right) \right\} }\\
+& \propto \left( \tau^2_I \right)^{ - \alpha_I - \frac{M_I} {2} - 1 } \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t \right) \right)^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t \right) \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \alpha_I + \frac{1} {2} \sum_{t = 1}^T N_{It}, \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right)^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right) \right)$
+which is IG$\left( \alpha_I + \frac{M_I} {2}, \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t \right) \right)^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_t \right) \right) \right)$
 %
 %%
 %% Full conditional for tau^2_P
@@ -258,15 +325,15 @@ which is IG$\left( \alpha_I + \frac{1} {2} \sum_{t = 1}^T N_{It}, \beta_I + \fra
 & \hspace{6mm} \times \left( \tau^2_P \right)^{ - \alpha_P - 1 } \exp{ \left\{ \frac{\beta_P} {\tau^2_P} \right\} }\\
 %
 & \propto \left( \tau^2_P \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{Pt}}\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \frac{1} {\tau^2_P} \bm{I}_{N_{Pt}} \right)^{ - 1} \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t + \bm{B}_{Pt} \right) \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t + \bm{B}_{Pt} \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \tau^2_P \right)^{ - \alpha_P - 1 } \exp{ \left\{ \frac{\beta_P} {\tau^2_P} \right\} }\\
 %
-& \propto \left( \tau^2_P \right)^{ - \alpha_P - \frac{1} {2} \sum_{t = 1}^T N_{Pt} - 1 }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right) \right\} }\\
+& \propto \left( \tau^2_P \right)^{ - \alpha_P - \frac{M_P} {2} - 1 }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \left( \beta_P + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t + \beta_0 \bm{1}_{N_{Pt}} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t  + \beta_0 \bm{1}_{N_{Pt}} \right) \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \alpha_P + \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \beta_P + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right)$
+which is IG$\left( \alpha_P + \frac{M_P} {2}, \beta_P + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t  + \beta_0 \bm{1}_{N_{Pt}} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_t  + \beta_0 \bm{1}_{N_{Pt}} \right) \right) \right)$
 %
 %%
 %% Full conditional for sigma^2
@@ -281,32 +348,32 @@ which is IG$\left( \alpha_P + \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \beta_P + \fra
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{1} {2} } \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
 & \hspace{6mm} \times \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - 1} \exp{ \left\{ - \frac{\beta_{\sigma^2}} {\sigma^2} \right\} } \\
 %
-& \propto \left( \sigma^2 \right)^{ - \frac{n T} {2} } \exp{ \left\{ - \frac{1} {\sigma^2} \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}(\phi)^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+& \propto \left( \sigma^2 \right)^{ - \frac{N T} {2} } \exp{ \left\{ - \frac{1} {\sigma^2} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - 1} \exp{ \left\{ - \frac{\beta_{\sigma^2}} {\sigma^2} \right\} } \\
 %
-& \propto \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - \frac{n T} {2} - 1}\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\sigma^2} \left( \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}(\phi)^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
+& \propto \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - \frac{N T} {2} - 1}\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\sigma^2} \left( \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \alpha_{\sigma^2} + \frac{n T} {2}, \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}(\phi)^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right)$
+which is IG$\left( \alpha_{\sigma^2} + \frac{N T} {2}, \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right)$
 %
 %%
 %% Full conditional for phi
 %%
 %
-\subsection{Full conditional for $\phi$}
-%
-\begin{align*}
-%
-\left[ \phi \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \phi \right]\\
-%
-& \propto \prod_{t = 1}^T \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{1} {2} } \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
-& \hspace{6mm} \times \left( \phi \right)^{ - \alpha_\phi - 1} \exp{ \left\{ - \frac{\beta_\phi} {\phi} \right\} } \\
-%
-\end{align*}
-%
-which can be sampled using a Metropolis-Hastings algorithm using a properly tuned normal proposal distribution.\\
+% \subsection{Full conditional for $\phi$}
+% %
+% \begin{align*}
+% %
+% \left[ \phi \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \phi \right]\\
+% %
+% & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{1} {2} } \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
+% & \hspace{6mm} \times \left( \phi \right)^{ - \alpha_\phi - 1} \exp{ \left\{ - \frac{\beta_\phi} {\phi} \right\} } \\
+% %
+% \end{align*}
+% %
+% which can be sampled using a Metropolis-Hastings algorithm using a properly tuned normal proposal distribution.\\
 %
 %%
 %% Extensions
@@ -316,7 +383,7 @@ which can be sampled using a Metropolis-Hastings algorithm using a properly tune
 %
 \begin{itemize}
 %
-\item Predictive Process for $\Sigma_\epsilon$
+\item Predictive Process for $\Sigma_\epsilon$ in the spatial model
 \item Include the number of trees used to create a chronology in the model
 \item Maybe we need to model a covariance between the proxy chronolgies instead of a spatial covariance? e.g. $\bm{R} \left( \phi \right)$ is not a spatial covariance but a covariance between proxy records at a given site
 \item ???

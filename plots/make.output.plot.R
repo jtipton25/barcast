@@ -4,7 +4,7 @@ make.output.plot <- function(out, resid = FALSE, file = 'filepath'){
 	}
 	if(resid == FALSE){
 			layout(matrix(1:9, nrow = 3, ncol = 3))
-			matplot(apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean), type = 'l', main = 'fitted PDSI', ylab = 'PDSI', ylim = c(-3, 3))
+			matplot(apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean), type = 'l', main = 'fitted PDSI', ylab = 'PDSI', ylim = c(-4, 4))
 			abline(h = 0, col = 'blue')
 			lines(apply(out$X.save[, 1, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
 			lines(apply(out$X.save[, 1, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))

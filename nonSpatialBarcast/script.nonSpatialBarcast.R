@@ -78,3 +78,25 @@ finish
 # x11()
 make.output.plot(out)
 # make.output.plot(out, model = 'simple', file = '~/treeRing/plots/simple.log.climate.png')
+
+
+for(i in 1:32){
+  matplot(apply(out$X.save[, i, n.burn:n.mcmc], 1, mean), type = 'l')
+}
+
+##
+## Plot using the longest tree ring reconstruction
+##
+
+layout(1:2)
+matplot(apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean), type = 'l')
+abline(h = 0, col = 'blue')
+lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
+lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
+lines(WI, col = adjustcolor('blue', alpha = 0.5))
+y <- apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)
+x <- 1:(t+1)
+abline(lm(y~x), col = 'green')
+# 			plot(X, type = 'l', col = 'blue')
+plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
+
