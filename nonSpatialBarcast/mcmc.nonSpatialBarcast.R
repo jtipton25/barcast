@@ -193,7 +193,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     # for t = 1,...,T - 1
     for(i in 1:(t - 1)){ # note the offset since t = 0 is the first element of the matrix X
       A.chol <- chol(t(Ht[[i]]) %*% Sigma.inv[[i]] %*% Ht[[i]] + (alpha^2 + 1) * Sigma.epsilon.inv)
-      b <- t(Ht[[i]]) %*% Sigma.inv[[i]] %*% (Wt[[i]] - Bt[[i]]) + Sigma.epsilon.inv %*% (alpha * (X[i + 2, ] + X[i, ]) + (1 - alpha)^2 * mu)
+      b <- t(Ht[[i]]) %*% Sigma.inv[[i]] %*% (Wt[[i]] - Bt[[i]]) + Sigma.epsilon.inv %*% (alpha * (X[i + 2, ] + X[i, ]) + (1 + alpha)^2 * mu)
       X[i + 1, ] <- rMVN(A.chol, b)
     }
     
@@ -293,9 +293,9 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
 
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- t(WPt[[i]] - HPt[[i]] %*% X[i + 1, ] - beta.0) %*% (WPt[[i]] - HPt[[i]] %*% X[i + 1, ] - beta.0)
+      tmp[i] <- t(WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - rep(beta.0, NPt[i])) %*% (WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - rep(beta.0, NPt[i]))
     }
-    tau.squared.P <- 1 / rgamma(1, alpha.P + MP / 2, beta.I + sum(tmp) / 2)
+    tau.squared.P <- 1 / rgamma(1, alpha.P + MP / 2, beta.P + sum(tmp) / 2)
     for(i in 1:t){
       Sigma[[i]] <- diag(c(rep(tau.squared.I, NIt[i]),rep(tau.squared.P, NPt[i])))
       Sigma.inv[[i]] <- diag(c(rep(1 / tau.squared.I, NIt[i]),rep(1 / tau.squared.P, NPt[i])))
@@ -307,7 +307,8 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- t(X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu) %*% Sigma.epsilon.inv %*% (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu)
+#       tmp[i] <- t(X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu) %*% Sigma.epsilon.inv %*% (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu)
+      tmp[i] <- t(X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu) %*% (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu)
     }
     sigma.squared <- 1 / rgamma(1, alpha.sigma.squared + n * t / 2, beta.sigma.squared + sum(tmp) / 2)
     Sigma.epsilon <- sigma.squared * I

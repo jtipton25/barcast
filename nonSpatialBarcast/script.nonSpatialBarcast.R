@@ -58,7 +58,7 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-n.mcmc <- 1000
+n.mcmc <- 5000
 n.burn <- floor(n.mcmc / 5)
 
 ##

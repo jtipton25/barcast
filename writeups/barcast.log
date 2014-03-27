@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  26 MAR 2014 17:04
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  26 MAR 2014 23:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -81,7 +81,7 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 LaTeX Info: Redefining \[ on input line 2665.
 LaTeX Info: Redefining \] on input line 2666.
 )
-(./barcast.aux)
+No file barcast.aux.
 \openout1 = `barcast.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
@@ -96,7 +96,6 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
-
 
 LaTeX Warning: No \author given.
 
@@ -171,12 +170,12 @@ Overfull \hbox (19.90117pt too wide) in paragraph at lines 243--251
  []
 
 
-Overfull \hbox (83.6825pt too wide) in paragraph at lines 267--267
+Overfull \hbox (103.96725pt too wide) in paragraph at lines 267--267
 [] 
  []
 
 
-Overfull \hbox (100.73308pt too wide) in paragraph at lines 267--275
+Overfull \hbox (121.01784pt too wide) in paragraph at lines 267--275
 \OT1/cmr/m/n/10 which is IG$[]$ 
  []
 
@@ -210,8 +209,8 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
  [7] [8]
 (./barcast.aux) ) 
 Here is how much of TeX's memory you used:
- 888 strings out of 493315
- 9988 string characters out of 6137904
+ 886 strings out of 493315
+ 9964 string characters out of 6137904
  81120 words of memory out of 5000000
  4378 multiletter control sequences out of 15000+600000
  13934 words of font info for 49 fonts, out of 8000000 for 9000
@@ -236,7 +235,7 @@ pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
 ></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></
 usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
 sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on barcast.pdf (8 pages, 195570 bytes).
+Output written on barcast.pdf (8 pages, 195619 bytes).
 PDF statistics:
  107 PDF objects out of 1000 (max. 8388607)
  77 compressed objects within 1 object stream

@@ -245,7 +245,7 @@ which is truncated N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with $\bm{A}^{ - 1} =
 which is IG$\left( \alpha_I + \frac{1} {2} \sum_{t = 1}^T N_{It}, \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right)^T \left( \bm{W}_{It} - \left( \bm{H}_{It} \bm{T}_{It} \right) \right) \right)$
 %
 %%
-%% Full conditional for tau^2_I
+%% Full conditional for tau^2_P
 %%
 %
 \subsection{Full conditional for $\tau^2_P$}
@@ -258,15 +258,15 @@ which is IG$\left( \alpha_I + \frac{1} {2} \sum_{t = 1}^T N_{It}, \beta_I + \fra
 & \hspace{6mm} \times \left( \tau^2_P \right)^{ - \alpha_P - 1 } \exp{ \left\{ \frac{\beta_P} {\tau^2_P} \right\} }\\
 %
 & \propto \left( \tau^2_P \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{Pt}}\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \frac{1} {\tau^2_P} \bm{I}_{N_{Pt}} \right)^{ - 1} \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \frac{1} {\tau^2_P} \bm{I}_{N_{Pt}} \right)^{ - 1} \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \tau^2_P \right)^{ - \alpha_P - 1 } \exp{ \left\{ \frac{\beta_P} {\tau^2_P} \right\} }\\
 %
 & \propto \left( \tau^2_P \right)^{ - \alpha_P - \frac{1} {2} \sum_{t = 1}^T N_{Pt} - 1 }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \beta_I + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt} + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \alpha_P + \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \beta_P + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right)$
+which is IG$\left( \alpha_P + \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \beta_P + \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} \bm{T}_{Pt}  + \bm{B}_{Pt} \right) \right) \right)$
 %
 %%
 %% Full conditional for sigma^2
