@@ -121,6 +121,8 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   ## set up save variables
   ##
   
+#   W.tilde <- matrix(nrow = t, ncol = n)
+#   W.tilde.save <- array(dim = c(t, n, (n.mcmc - n.burn) / 10))
   X.save <- array(dim = c(t + 1, n, n.mcmc))
   alpha.save <- vector(length = n.mcmc)
   mu.save <- vector(length = n.mcmc)
@@ -172,6 +174,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     b <- sum(tmp) / tau.squared.P + mu.beta.0 / sigma.squared.beta.0
     beta.0 <- rMVN(A.chol, b)
     Bt <- lapply(1:t, make.Bt, beta.0 = beta.0)
+    beta.0.vec <- c(0, rep(beta.0, NP))
     
     ##
     ## sample beta_1
@@ -189,7 +192,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     b <- sum(tmp) / tau.squared.P + mu.beta.1 / sigma.squared.beta.1
     beta.1 <- rMVN(A.chol, b)
     Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
-    
+    beta.1.vec <- c(0, rep(beta.1, NP))
     ##
     ## sample mu
     ##
@@ -261,9 +264,25 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     Sigma.epsilon.inv <- 1 / sigma.squared * I
     
     ##
+    ## posterior predictive
+    ##
+
+#     if(l > n.burn){
+#       if(l %% 10 == 0){
+#         Sigma.full <- diag(c(rep(tau.squared.I, NI), rep(tau.squared.P, NP)))
+#         for(i in 1:t){
+#           W.tilde[i, ] <- rmvnorm(1, beta.1.vec %*% X[i + 1, ] + beta.0.vec, Sigma.full)
+#         }
+#       }
+#     }
+    
+    ##
     ## save variables
     ##
     
+#     if(l > n.burn && l %% 10 == 0){
+#       W.tilde.save[, , (l - n.burn) / 10] <- W.tilde
+#     }
     X.save[, , l] <- X
     alpha.save[l] <- alpha
     mu.save[l] <- mu

@@ -9,7 +9,7 @@ library(mvtnorm)
 library(MASS)
 source('~/barcast/rMVN.R')
 source('~/barcast/plots/make.output.plot.R')
-source('~/barcast/nonSpatialBarcast/mcmc.nonSpatialBarcast.R')
+source('~/barcast/nonSpatialBarcast/mcmc.nonSpatialBarcastExtended.R')
 
 ##
 ## load data
@@ -32,6 +32,7 @@ WI[t.o] <- pdsi$X261
 
 W <- cbind(WI, WP)
 H <- !is.na(W)
+H.tmp <- rbind(rep(FALSE, dim(W)[2]), H)
 
 year <- rep(1:t, times = (length(W) / t))
 
@@ -58,7 +59,7 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-n.mcmc <- 5000
+n.mcmc <- 10000
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -78,25 +79,38 @@ finish
 # x11()
 make.output.plot(out)
 # make.output.plot(out, model = 'simple', file = '~/treeRing/plots/simple.log.climate.png')
+# 
+# for(i in 1:32){
+#   matplot(apply(out$X.save[, i, n.burn:n.mcmc], 1, mean), type = 'l')
+# }
+# 
+# ##
+# ## Plot using the longest tree ring reconstruction
+# ##
+# 
+# layout(1:2)
+# matplot(apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean), type = 'l')
+# abline(h = 0, col = 'blue')
+# lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
+# lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
+# lines(WI, col = adjustcolor('blue', alpha = 0.5))
+# y <- apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)
+# x <- 1:(t+1)
+# abline(lm(y~x), col = 'green')
+# # 			plot(X, type = 'l', col = 'blue')
+# plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
+# 
 
-
-for(i in 1:32){
-  matplot(apply(out$X.save[, i, n.burn:n.mcmc], 1, mean), type = 'l')
+X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
+X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
+for(k in (n.burn + 1):n.mcmc){
+  if(k %% 100 == 0){
+    cat(k, ' ')
+  }
+  X.mat[H.tmp] <- out$X.save[, , k][H.tmp]
+  X.save[, k - n.burn] <- rowMeans(X.mat, na.rm = TRUE)
 }
 
-##
-## Plot using the longest tree ring reconstruction
-##
-
-layout(1:2)
-matplot(apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean), type = 'l')
-abline(h = 0, col = 'blue')
-lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
-lines(apply(out$X.save[, 13, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
-lines(WI, col = adjustcolor('blue', alpha = 0.5))
-y <- apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)
-x <- 1:(t+1)
-abline(lm(y~x), col = 'green')
-# 			plot(X, type = 'l', col = 'blue')
-plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
-
+matplot(apply(
+  X.save[, 2]
+  , 1, mean), type = 'l')
