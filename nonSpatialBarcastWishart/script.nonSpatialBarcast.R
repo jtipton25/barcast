@@ -9,7 +9,7 @@ library(mvtnorm)
 library(MASS)
 source('~/barcast/rMVN.R')
 source('~/barcast/plots/make.output.plot.R')
-source('~/barcast/nonSpatialBarcast/mcmc.nonSpatialBarcast.R')
+source('~/barcast/nonSpatialBarcastWishart/mcmc.nonSpatialBarcast.R')
 # source('~/barcast/nonSpatialBarcast/mcmc.nonSpatialBarcastExtendedNoBeta0.R')
 
 ##
@@ -32,6 +32,7 @@ WI <- rep(NA, length = t)
 WI[t.o] <- pdsi$X261
 
 W <- cbind(WI, WP)
+n <- dim(W)[2]
 H <- !is.na(W)
 H.tmp <- rbind(rep(FALSE, dim(W)[2]), H)
 
@@ -59,6 +60,19 @@ mu.beta.0 <- 0
 sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
+rho <- 0.8
+rho.tune <- 0.1
+R <- matrix(nrow = n,  ncol = n)
+for(i in 1:n){
+  for (j in 1:n){
+    if(i == j){
+      R[i, j] <- 1
+    } else{ 
+      R[i, j] <- rho
+    }
+  }
+}
+
 
 n.mcmc <- 100
 n.burn <- floor(n.mcmc / 5)
@@ -73,10 +87,10 @@ n.burn <- floor(n.mcmc / 5)
 # WP[HP] <- scale(WP[HP])
 
 # start <- Sys.time()
-Rprof(file = '~/barcast/nonSpatialBarcast/Rprof.out', lines = 'show')
-out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.sigma.squared, beta.sigma.squared, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1)
-Rprof(NULL)
-summaryRprof('~/barcast/nonSpatialBarcast/Rprof.out')
+# Rprof(file = '~/barcast/nonSpatialBarcast/Rprof.out', lines = 'show')
+out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.sigma.squared, beta.sigma.squared, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1, rho.tune)
+# Rprof(NULL)
+# summaryRprof('~/barcast/nonSpatialBarcast/Rprof.out')
 
 # finish <- Sys.time() - start
 # finish 
