@@ -60,21 +60,6 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   }
   
   ##
-  ## work on this function
-  ##
-  make.R <- function(rho){
-    for(i in 1:n){
-      for (j in 1:n){
-        if(i == j){
-          R[i, j] <- 1
-        } else{ 
-          R[i, j] <- rho
-        }
-      }
-    }
-  }
-  
-  ##
   ## initialize variables
   ##
   
@@ -116,7 +101,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   alpha <- runif(1, alpha.alpha, beta.alpha)
   mu <- rnorm(1, mu.0, sigma.squared.0)
   sigma.squared <- 1 / rgamma(1, alpha.sigma.squared, beta.sigma.squared)
-  rho <- runif(1, 0, 1)
+  rho <- runif(2, 0, 1)
   phi <- 1 / rgamma(1, alpha.phi, beta.phi)
   tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
   tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
@@ -125,20 +110,14 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   
 #   Bt <- lapply(1:t, make.Bt, beta.0 = beta.0)
-  R <- matrix(nrow = n, ncol = n)
+  R <- matrix(rho[2], nrow = n, ncol = n)
   R.star <- matrix(nrow = n, ncol = n)
-  #   R <- make.R(rho)
-  for(i in 1:n){
-    for (j in 1:n){
-      if(i == j){
-        R[i, j] <- 1
-      } else{ 
-        R[i, j] <- rho
-      }
-    }
-  } 
-  
+  R[1, ] <- rho[1]
+  R[, 1] <- rho[1]
+  diag(R) <- 1
   R.inv <- solve(R)
+  Rho.tune <- diag(rho.tune, 2)
+
   Sigma.epsilon <- sigma.squared * R
   Sigma.epsilon.inv <- 1 / sigma.squared * R.inv
   Sigma.full <- diag(c(rep(tau.squared.I, NI), rep(tau.squared.P, NP)))
@@ -163,7 +142,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
 #   beta.0.save <- vector(length = n.mcmc)
   beta.1.save <- vector(length = n.mcmc)
   sigma.squared.save <- vector(length = n.mcmc)
-  rho.save <- vector(length = n.mcmc)
+  rho.save <- matrix(nrow = 2, ncol = n.mcmc)
   rho.accept <- 0  
   
   ##
@@ -195,23 +174,9 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
 #     b <- t(Ht[[t]]) %*% Sigma.inv[[t]] %*% (Wt[[t]] - Bt[[t]]) + Sigma.epsilon.inv %*% (alpha * X[t, ] + (1 - alpha) * mu)
       b <- t(Ht[[t]]) %*% Sigma.inv[[t]] %*% (Wt[[t]]) + Sigma.epsilon.inv %*% (alpha * X[t, ] + (1 - alpha) * mu)
     X[t + 1, ] <- rMVN(A.chol, b)
-    
-#     ##
-#     ## sample beta_0
-#     ##
-#     
-#     A.chol <-sqrt(MP / tau.squared.P + 1 / sigma.squared.beta.0)
-#     tmp <- vector(length = t)
-#     for(i in 1:t){
-#       tmp[i] <- sum((WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ]))
-#     }
-#     
-#     b <- sum(tmp) / tau.squared.P + mu.beta.0 / sigma.squared.beta.0
-#     beta.0 <- rMVN(A.chol, b)
-#     Bt <- lapply(1:t, make.Bt, beta.0 = beta.0)
-#     
-#     ##
-#     ## sample beta_1
+        
+    ##
+    ## sample beta_1
     ##
     
     tmp <- vector(length = t)
@@ -277,8 +242,6 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     tmp <- vector(length = t)
     for(i in 1:t){
-
-#       tmp[i] <- t(WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - beta.0) %*% (WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - beta.0)
       tmp[i] <- t(WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ]) %*% (WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ])
     }
     tau.squared.P <- 1 / rgamma(1, alpha.P + MP / 2, beta.P + sum(tmp) / 2)
@@ -294,7 +257,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu) %*% R.inv %*% (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu)
+      tmp[i] <- t(X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu) %*% R.inv %*% (X[i + 1, ] - alpha * X[i, ] - (1 - alpha) * mu)
     }
     sigma.squared <- 1 / rgamma(1, alpha.sigma.squared + n * t / 2, beta.sigma.squared + sum(tmp) / 2)
     Sigma.epsilon <- sigma.squared * R
@@ -303,18 +266,14 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     ## 
     ## sample rho
     ##
-    
-    rho.star <- rnorm(1, rho, rho.tune)
-    if(rho.star > 0 && rho.star < 1){
-      for(i in 1:n){
-        for (j in 1:n){
-          if(i == j){
-            R.star[i, j] <- 1
-          } else{ 
-            R.star[i, j] <- rho.star
-          }
-        }
-      }
+
+    rho.star <- rmvnorm(1, rho, Rho.tune)
+
+    if(sum(rho.star > 0 & rho.star < 1) == 2){
+      R.star <- matrix(rho.star[2], nrow = n, ncol = n)
+      R.star[1, ] <- rho.star[1]
+      R.star[, 1] <- rho.star[1]
+      diag(R.star) <- 1
       R.star.inv <- solve(R.star)
       Sigma.epsilon.star <- sigma.squared * R.star
       Sigma.epsilon.star.inv <- 1 / sigma.squared * R.star.inv
@@ -345,7 +304,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
 #     beta.0.save[l] <- beta.0
     beta.1.save[l] <- beta.1
     sigma.squared.save[l] <- sigma.squared
-    rho.save[l] <- rho
+    rho.save[, l] <- rho
   }    
   
 #   list(X.save = X.save, alpha.save = alpha.save, mu.save = mu.save, phi.save = phi.save, tau.I.save = tau.I.save, tau.P.save = tau.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, rho.save = rho.save, rho.accept = rho.accept)  

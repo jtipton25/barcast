@@ -81,7 +81,7 @@ sigma.squared.beta.1 <- 8
 rho.tune <- 0.0001
 
 
-n.mcmc <- 100
+n.mcmc <- 5000
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -98,8 +98,7 @@ finish
 
 # x11()
 make.output.plot(out)
-make.output.plot(out, file = '~/barcast/plots/simpleCorrelation3.30.2014.jpg')
-# make.output.plot(out, model = 'simple', file = '~/treeRing/plots/simple.log.climate.png')
+# make.output.plot(out, file = '~/barcast/plots/twoRhoCorrelation.3.13.2014.jpg')
 # 
 # for(i in 1:32){
 #   matplot(apply(out$X.save[, i, n.burn:n.mcmc], 1, mean), type = 'l')
@@ -120,21 +119,25 @@ make.output.plot(out, file = '~/barcast/plots/simpleCorrelation3.30.2014.jpg')
 # abline(lm(y~x), col = 'green')
 # # 			plot(X, type = 'l', col = 'blue')
 # plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
+#
+#
+# ## 
+# ## Average over all chronology reconstructions
+# ##
+#
+# X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
+# X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
+# for(k in (n.burn + 1):n.mcmc){
+#   if(k %% 100 == 0){
+#     cat(k, ' ')
+#   }
+#   X.mat[H.tmp] <- out$X.save[, , k][H.tmp]
+#   X.save[, k - n.burn] <- rowMeans(X.mat, na.rm = TRUE)
+# }
 # 
-
-X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
-X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
-for(k in (n.burn + 1):n.mcmc){
-  if(k %% 100 == 0){
-    cat(k, ' ')
-  }
-  X.mat[H.tmp] <- out$X.save[, , k][H.tmp]
-  X.save[, k - n.burn] <- rowMeans(X.mat, na.rm = TRUE)
-}
-
-matplot(apply(X.save[-1, ], 1, mean), type = 'l')
-abline(h=0, col = 'red')
-lines(apply(X.save[-1, ], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha = 0.25))
-lines(apply(X.save[-1, ], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha = 0.25))
-lines(WI, col = adjustcolor('blue', alpha = 0.5))
-
+# matplot(apply(X.save[-1, ], 1, mean), type = 'l')
+# abline(h=0, col = 'red')
+# lines(apply(X.save[- 1, ], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha = 0.25))
+# lines(apply(X.save[- 1, ], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha = 0.25))
+# lines(WI, col = adjustcolor('blue', alpha = 0.5))
+# plot(sqrt((WI[t.o] - apply(X.save[- 1, ], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')

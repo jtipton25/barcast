@@ -60,21 +60,6 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   }
   
   ##
-  ## work on this function
-  ##
-  make.R <- function(rho){
-    for(i in 1:n){
-      for (j in 1:n){
-        if(i == j){
-          R[i, j] <- 1
-        } else{ 
-          R[i, j] <- rho
-        }
-      }
-    }
-  }
-  
-  ##
   ## initialize variables
   ##
   
@@ -116,7 +101,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   alpha <- runif(1, alpha.alpha, beta.alpha)
   mu <- rnorm(1, mu.0, sigma.squared.0)
   sigma.squared <- 1 / rgamma(1, alpha.sigma.squared, beta.sigma.squared)
-  rho <- runif(1, 0, 1)
+  rho <- runif(n * (n - 1), 0, 1)
   phi <- 1 / rgamma(1, alpha.phi, beta.phi)
   tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
   tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
@@ -125,22 +110,18 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   
 #   Bt <- lapply(1:t, make.Bt, beta.0 = beta.0)
-  R <- matrix(nrow = n, ncol = n)
-  R.star <- matrix(nrow = n, ncol = n)
+#   R <- matrix(nrow = n, ncol = n)
+  Q <- rwish(n, S)
+  Q.inv <- solve(Q)
+#   R.star <- matrix(nrow = n, ncol = n)
   #   R <- make.R(rho)
-  for(i in 1:n){
-    for (j in 1:n){
-      if(i == j){
-        R[i, j] <- 1
-      } else{ 
-        R[i, j] <- rho
-      }
-    }
-  } 
+ 
+  }
   
-  R.inv <- solve(R)
-  Sigma.epsilon <- sigma.squared * R
-  Sigma.epsilon.inv <- 1 / sigma.squared * R.inv
+#   R.inv <- solve(R)
+#   Rho.tune <- diag(rho.tune, n * (n - 1) / 2)
+  Sigma.epsilon <- sigma.squared * Q
+  Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
   Sigma.full <- diag(c(rep(tau.squared.I, NI), rep(tau.squared.P, NP)))
   Sigma.full.inv <- diag(c(rep(1 / tau.squared.I, NI), rep(1 / tau.squared.P, NP)))
   Sigma <- vector('list', length = t)
@@ -301,20 +282,24 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     Sigma.epsilon.inv <- 1 / sigma.squared * R.inv
     
     ## 
-    ## sample rho
+    ## sample Q
     ##
-    
-    rho.star <- rnorm(1, rho, rho.tune)
+
+    Q.star <- rwish(n, Q)
+
     if(rho.star > 0 && rho.star < 1){
+      k=1
       for(i in 1:n){
-        for (j in 1:n){
+        for(j in i:n){
           if(i == j){
-            R.star[i, j] <- 1
-          } else{ 
-            R.star[i, j] <- rho.star
-          }
+            R[i, j] <- 1
+          } else {
+            R[i, j] <- rho[k]
+            k = k + 1
+          } 
         }
       }
+      
       R.star.inv <- solve(R.star)
       Sigma.epsilon.star <- sigma.squared * R.star
       Sigma.epsilon.star.inv <- 1 / sigma.squared * R.star.inv
