@@ -51,6 +51,7 @@
 
 \usepackage{amsmath}
 \def\bm#1{\mbox{\boldmath $#1$}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 
 \title{Barcast Model}
 %%
@@ -87,10 +88,10 @@ where $\bm{W}_t = \left( \begin{array}{c} \bm{W}_{It} \\ \bm{W}_{Pt} \end{array}
 \subsection{Process Model}
 %
 \begin{align*}
-\bm{T}_t - \mu \bm{1}_N & = \alpha \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) + \bm{\epsilon}_t  & \bm{\epsilon}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_\epsilon) & \bm{\Sigma_\epsilon} & = \sigma^2 \bm{R}
+\bm{T}_t - \mu \bm{1}_N & = \alpha \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right) + \bm{\epsilon}_t  & \bm{\epsilon}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_\epsilon) & \bm{\Sigma_\epsilon} & = \sigma^2 \bm{Q}
 \end{align*}
 %
-where $\bm{R}$ is a correlation matrix with 1 on the diagonal and $\rho$ on the off-diagonals.
+where $\bm{Q}$ is a covariance matrix modeled by an inverse Wishart distribution.
 %
 %%
 %% Parameter Model
@@ -108,8 +109,6 @@ where $\bm{R}$ is a correlation matrix with 1 on the diagonal and $\rho$ on the 
 %
 \sigma^2 & \sim \mbox{IG}\left( \alpha_{\sigma^2}, \beta_{\sigma^2} \right)\\
 %
-\phi & \sim \mbox{IG}\left( \alpha_\phi, \beta_\phi \right)\\
-%
 \tau_I & \sim \mbox{IG}\left( \alpha_I, \beta_I \right)\\
 %
 \tau_P & \sim \mbox{IG}\left( \alpha_P, \beta_P \right)\\
@@ -118,7 +117,7 @@ where $\bm{R}$ is a correlation matrix with 1 on the diagonal and $\rho$ on the 
 %
 \beta_0 & \sim \mbox{N} \left( \mu_{\beta_0}, \sigma^2_{\beta_0} \right) & \mu_{\beta_0} & = - \mu \beta_1 & \sigma^2_{\beta_1} & = 8 \\
 %
-\rho & \sim \mbox{U}\left( 0, 1 \right)\\
+\bm{Q} & \sim \mbox{InvWish}\left( \nu, \bm{I}_{N \times N} \right)\\
 %
 \end{align*}
 %
@@ -132,8 +131,8 @@ Note that the prior values are set as the prior modes (e.g. $\mu_{\beta_1}$ is a
 %
 \begin{align*}
 %
-\prod_{t = 1}^T \left[ \bm{T}_t, \beta_0, \beta_1, \mu, \alpha, \tau^2_I, \tau^2_P, \sigma^2, \phi \middle| \bm{W}_t, T \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \propto \left[ \bm{T}_t \middle| \bm{T}_t, \mu, \alpha, \sigma^2, \phi \right] \left[ \bm{T}_0 \right] \\ 
-& \hspace{6mm} \times \left[ \beta_0 \right] \left[ \beta_1 \right] \left[ \tau^2_I \right] \left[ \tau^2_P \right] \left[ \mu \right] \left[ \alpha \right] \left[ \sigma^2 \right] \left[ \phi \right] 
+\prod_{t = 1}^T \left[ \bm{T}_t, \beta_0, \beta_1, \mu, \alpha, \tau^2_I, \tau^2_P, \sigma^2, \bm{Q} \middle| \bm{W}_t, T \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \propto \left[ \bm{T}_t \middle| \bm{T}_t, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \bm{T}_0 \right] \\ 
+& \hspace{6mm} \times \left[ \beta_0 \right] \left[ \beta_1 \right] \left[ \tau^2_I \right] \left[ \tau^2_P \right] \left[ \mu \right] \left[ \alpha \right] \left[ \sigma^2 \right] \left[ \bm{Q} \right] 
 %
 \end{align*}
 %
@@ -151,7 +150,7 @@ Note that the prior values are set as the prior modes (e.g. $\mu_{\beta_1}$ is a
 %
 \begin{align*}
 %
-\left[ \bm{T}_0 \middle| \cdot \right] & \propto \left[ \bm{T}_1 \middle| \bm{T}_0, \mu, \alpha, \sigma^2, \phi \right] \left[ \bm{T}_0 \right] \\
+\left[ \bm{T}_0 \middle| \cdot \right] & \propto \left[ \bm{T}_1 \middle| \bm{T}_0, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \bm{T}_0 \right] \\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_1 - \alpha \bm{T}_0 - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_0 - \tilde{\bm{\mu}}_0 \right)^T \tilde{\bm{\Sigma}}_0^{ - 1} \left( \bm{T}_0 - \tilde{\bm{\mu}}_0 \right) \right\} }\\
@@ -176,7 +175,7 @@ For $t = 1, \ldots T - 1$,
 %
 \begin{align*}
 %
-\left[ \bm{T}_t \middle| \cdot \right] & \propto \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \bm{T}_{t + 1} \middle| \bm{T}_t, \mu, \alpha, \sigma^2, \phi \right]\\
+\left[ \bm{T}_t \middle| \cdot \right] & \propto \left[ \bm{W}_t \middle| \bm{T}_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \bm{T}_{t + 1} \middle| \bm{T}_t, \mu, \alpha, \sigma^2, \bm{Q} \right]\\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t \bm{T}_t + \bm{B}_t \right)  \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
@@ -201,7 +200,7 @@ For $t = T$,
 %
 \begin{align*}
 %
-\left[ \bm{T}_T \middle| \cdot \right] & \propto \left[ \bm{W}_T \middle| \bm{T}_T, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_T \middle| \bm{T}_{T - 1}, \mu, \alpha, \sigma^2, \phi \right] \\
+\left[ \bm{T}_T \middle| \cdot \right] & \propto \left[ \bm{W}_T \middle| \bm{T}_T, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T}_T \middle| \bm{T}_{T - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \\
 %
 & \propto \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_T - \left( \bm{H}_T \bm{T}_T - \bm{B}_T \right) \right)^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \left( \bm{H}_T \bm{T}_T - \bm{B}_T \right)  \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_T - \alpha \bm{T}_{T - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
@@ -290,7 +289,7 @@ NOTE: My devivation includes $\bm{H}_{Pt}$ in the $\bm{A}^{ - 1}$ and $\bm{b}$ t
 %
 \begin{align*}
 %
-\left[ \mu \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \mu \right] \\
+\left[ \mu \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \mu \right] \\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2} \frac{\left( \mu - \mu_0 \right)^2} {\sigma^2_0} \right\} }\\
@@ -320,7 +319,7 @@ where $N = N_I + N_P = 33$ for the Hudson Valley PDSI
 %
 \begin{align*}
 %
-\left[ \alpha \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \alpha \right]\\
+\left[ \alpha \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \alpha \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1}_N \right) \right\} } I \left\{ \alpha \in \left( 0, 1 \right) \right\}\\
 %
@@ -336,7 +335,7 @@ which is truncated N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$), , restricted to $\al
 %
 \bm{b} & = \sum_{t = 1}^T \left( \bm{T}_{t - 1} - \mu \bm{1}_N \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t - \mu \bm{1}_N \right) .
 %
-\end{align*}l
+\end{align*}
 %
 %%
 %% Full conditional for tau^2_I
@@ -392,37 +391,88 @@ which is IG$\left( \alpha_P + \frac{M_P} {2}, \beta_P + \frac{1} {2} \sum_{t = 1
 %
 \begin{align*}
 %
-\left[ \sigma^2 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \sigma^2 \right]\\
+\left[ \sigma^2 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \sigma^2 \right]\\
 %
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{1} {2} } \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
 & \hspace{6mm} \times \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - 1} \exp{ \left\{ - \frac{\beta_{\sigma^2}} {\sigma^2} \right\} } \\
 %
-& \propto \left( \sigma^2 \right)^{ - \frac{N T} {2} } \exp{ \left\{ - \frac{1} {\sigma^2} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
+& \propto \left( \sigma^2 \right)^{ - \frac{N T} {2} } \exp{ \left\{ - \frac{1} {\sigma^2} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{Q}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
 & \hspace{6mm} \times \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - 1} \exp{ \left\{ - \frac{\beta_{\sigma^2}} {\sigma^2} \right\} } \\
 %
 & \propto \left( \sigma^2 \right)^{ - \alpha_{\sigma^2} - \frac{N T} {2} - 1}\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\sigma^2} \left( \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\sigma^2} \left( \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{Q}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \alpha_{\sigma^2} + \frac{N T} {2}, \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{R}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right)$
+which is IG$\left( \alpha_{\sigma^2} + \frac{N T} {2}, \beta_{\sigma^2} + \frac{1} {2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{Q}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right)$
 %
 %%
-%% Full conditional for rho
+%% Full conditional for Q
 %%
 %
-\subsection{Full conditional for $\rho$}
+\subsection{Full conditional for $\bm{Q}$}
 %
 \begin{align*}
 %
-\left[ \rho \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \phi \right] \left[ \rho \right]\\
+\left[ \bm{Q} \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{T}_t \middle| \bm{T}_{t - 1}, \mu, \alpha, \sigma^2, \bm{Q} \right] \left[ \bm{Q} \right]\\
 %
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{1} {2} } \exp{ \left\{ - \frac{1} {2} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{\Sigma}_\epsilon^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} }\\
-& \hspace{6mm} \times \mbox{I}\left\{ \rho \in \left( 0, 1 \right) \right\} \\
+& \hspace{6mm} \times \left| \bm{Q} \right|^{ - \frac{\nu + N + 1} {2}} \exp{ \left\{ - \frac{1} {2} \mbox{tr}\left( \bm{I} \bm{Q}^{ - 1} \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2 \sigma^2} \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{Q}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \right\} } \numberthis \label{eqn1}\\
+& \hspace{6mm} \left| \bm{\Sigma}_\epsilon \right|^{ - \frac{\nu + T + N + 1} {2} } \times \exp{ \left\{ - \frac{1} {2} \mbox{tr}\left( \bm{I} \bm{Q}^{ - 1} \right) \right\} }\\
 %
 \end{align*}
 %
-which can be sampled using a Metropolis - Hastings step
+where $\mbox{tr} \left( \cdot \right)$ is the trace of a matrix. Now consider the sum in $\eqref{eqn1}$ and define $\bm{T}_{t, i}$ as the $i^{th}$ element of the vector $\bm{T}_t$ and $\bm{Q}^{ - 1}_{i, j}$ as the element in the $i^{th}$ row and $j^{th}$ column of $\bm{Q}$. Then
+%
+\begin{align*}
+%
+& \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T \bm{Q}^{ - 1} \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)\\
+%
+& = \sum_{t = 1}^T \sum_{i = 1}^N \sum_{j = 1}^N \left( \bm{T}_{t, i}  - \alpha \bm{T}_{t - 1, i} - \left( 1 - \alpha \right) \mu \right) \bm{Q}^{ - 1}_{i, j} \left( \bm{T}_{t, j}  - \alpha \bm{T}_{t - 1, j} - \left( 1 - \alpha \right) \mu \right)\\
+%
+& = \sum_{i = 1}^N \sum_{j = 1}^N \bm{Q}^{ - 1}_{i, j} \sum_{t = 1}^T \left( \bm{T}_{t, i}  - \alpha \bm{T}_{t - 1, i} - \left( 1 - \alpha \right) \mu \right) \left( \bm{T}_{t, j}  - \alpha \bm{T}_{t - 1, j} - \left( 1 - \alpha \right) \mu \right)\\
+%
+& = \sum_{i = 1}^N \sum_{j = 1}^N \bm{Q}^{ - 1}_{i, j} \bm{Q} \left(\bm{T}, \alpha, \mu \right) \\
+%
+& = \mbox{tr} \left( \bm{Q}^{ - 1}_{i, j} \bm{Q} \left(\bm{T}, \alpha, \mu \right) \right) \\
+%
+\end{align*}
+%
+Define $\bar{\bm{T}} = \bar{\bm{T}}_t - \alpha \bar{\bm{T}}_{t - 1} = \frac{1} {T} \sum_{t = 1}^T \bm{T}_t - \frac{\alpha} {T} \sum_{t = 1}^T \bm{T}_{t - 1} $. Now, examine $\bm{Q} \left(\bm{T}, \alpha, \mu \right)$ further.
+%
+\begin{align*}
+%
+\bm{Q} \left(\bm{T}, \alpha, \mu \right) & = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+%
+& = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} + \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} + \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+%
+& = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right)^T\\
+& \hspace{6mm} + \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right) \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+& \hspace{6mm} + \sum_{t = 1}^T \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right)^T\\
+& \hspace{6mm} + \sum_{t = 1}^T \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+%
+& = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right)^T\\
+& \hspace{6mm} + \left( \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} \right) - \bar{\bm{T}} \right) \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+& \hspace{6mm} + \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} \right) - \bar{\bm{T}} \right)^T\\
+& \hspace{6mm} + \sum_{t = 1}^T \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+%
+& = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right)^T + T \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right) \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)^T\\
+%
+& = \bm{Q}_0 + T \bm{q} \bm{q}^T
+%
+\end{align*}
+%
+where $\bm{Q}_0 = \sum_{t = 1}^T \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right) \left( \bm{T}_t  - \alpha \bm{T}_{t - 1} - \bar{\bm{T}} \right)^T$ and $\bm{q} = \left( \bar{\bm{T}} - \left( 1 - \alpha \right) \mu \bm{1} \right)$. Then, substituting the above derivation into $\eqref{eqn1}$ gives
+%
+\begin{align*}
+%
+& \propto \left| \bm{Q} \right|^{ - \frac{\nu + T + N + 1} {2} } \exp{ \left\{ - \frac{1} {2 \sigma^2} \mbox{tr} \left( \bm{Q}^{ - 1} \left( \bm{Q}_0 + T \bm{q} \bm{q}^T \right) \right) \right\} } \exp{ \left\{ - \frac{1} {2} \mbox{tr}\left( \bm{I} \bm{Q}^{ - 1} \right) \right\} } \\
+%
+& \propto \left| \bm{Q} \right|^{ - \frac{\nu + T + N + 1} {2} } \exp{ \left\{ - \frac{1} {2} \mbox{tr} \left( \bm{Q}^{ - 1} \frac{ \left( \bm{Q}_0 + T \bm{q} \bm{q}^T + \bm{I} \right) } {\sigma^2} \right) \right\} }\\
+%
+\end{align*}
 %
 %%
 %% Full conditional for phi
@@ -451,7 +501,6 @@ which can be sampled using a Metropolis - Hastings step
 %
 \item Predictive Process for $\Sigma_\epsilon$ in the spatial model
 \item Include the number of trees used to create a chronology in the model
-\item Maybe we need to model a covariance between the proxy chronolgies instead of a spatial covariance? e.g. $\bm{R} \left( \phi \right)$ is not a spatial covariance but a covariance between proxy records at a given site
 \item ???
 %
 \end{itemize}
@@ -459,7 +508,11 @@ which can be sampled using a Metropolis - Hastings step
 % \left[ \middle| \cdot \right] & \propto \left[ \middle| \right] 
 % \exp{ \left\{ - \frac{1} {2} \right\} }
 % 
-
+\section{References}
+\begin{itemize}
+\item Martin Tingley's BARCAST papers
+\item  Sayer's discussion on Wishart priors http://www.math.wustl.edu/~sawyer/hmhandouts/Wishart.pdf
+\end{itemize}
 
 
 \end{document}

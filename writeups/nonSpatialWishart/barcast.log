@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  28 MAR 2014 16:55
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  31 MAR 2014 15:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -139,18 +139,18 @@ tim
 (./barcast.aux)
 \openout1 = `barcast.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 61.
+LaTeX Font Info:    ... okay on input line 61.
 
 (/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -219,135 +219,151 @@ LaTeX Warning: No \author given.
 [1
 
 {/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (67.3665pt too wide) in paragraph at lines 138--138
+Overfull \hbox (72.82195pt too wide) in paragraph at lines 137--137
 [] 
  []
 
 
-Overfull \hbox (48.83495pt too wide) in paragraph at lines 161--161
+Overfull \hbox (48.83495pt too wide) in paragraph at lines 160--160
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 161--165
+Underfull \hbox (badness 10000) in paragraph at lines 160--164
 
  []
 
 [2]
-Overfull \hbox (126.1699pt too wide) in paragraph at lines 188--188
+Overfull \hbox (126.1699pt too wide) in paragraph at lines 187--187
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 188--192
+Underfull \hbox (badness 10000) in paragraph at lines 187--191
 
  []
 
 
-Overfull \hbox (46.8902pt too wide) in paragraph at lines 212--212
+Overfull \hbox (46.8902pt too wide) in paragraph at lines 211--211
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 212--215
+Underfull \hbox (badness 10000) in paragraph at lines 211--214
 
  []
 
 [3]
-Overfull \hbox (84.30414pt too wide) in paragraph at lines 240--240
+Overfull \hbox (84.30414pt too wide) in paragraph at lines 239--239
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 240--243
+Underfull \hbox (badness 10000) in paragraph at lines 239--242
 
  []
 
 [4]
-Overfull \hbox (90.12723pt too wide) in paragraph at lines 302--302
+Overfull \hbox (90.12723pt too wide) in paragraph at lines 301--301
 [] 
  []
 
 [5]
-Overfull \hbox (90.67899pt too wide) in paragraph at lines 330--330
+Overfull \hbox (90.67899pt too wide) in paragraph at lines 329--329
 [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 330--333
+Underfull \hbox (badness 10000) in paragraph at lines 329--332
 
  []
 
 [6]
-Overfull \hbox (70.25775pt too wide) in paragraph at lines 359--359
+Overfull \hbox (70.25775pt too wide) in paragraph at lines 358--358
 [] 
  []
 
 
-Overfull \hbox (110.17378pt too wide) in paragraph at lines 383--383
+Overfull \hbox (110.17378pt too wide) in paragraph at lines 382--382
 [] 
  []
 
 [7]
-Overfull \hbox (97.71585pt too wide) in paragraph at lines 383--391
+Overfull \hbox (97.71585pt too wide) in paragraph at lines 382--390
 \OT1/cmr/m/n/10 which is IG$[]$ 
  []
 
 
-Overfull \hbox (95.5424pt too wide) in paragraph at lines 406--406
+Overfull \hbox (95.46289pt too wide) in paragraph at lines 405--405
 [] 
  []
 
 [8]
-Overfull \hbox (86.17892pt too wide) in paragraph at lines 406--414
+Overfull \hbox (86.09941pt too wide) in paragraph at lines 405--413
 \OT1/cmr/m/n/10 which is IG$[]$ 
  []
 
 
-Overfull \hbox (42.27802pt too wide) in paragraph at lines 423--423
+Overfull \hbox (45.79393pt too wide) in paragraph at lines 425--425
 [] 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 452.
+[9]
+Overfull \hbox (79.82407pt too wide) in paragraph at lines 465--465
+[] 
+ []
+
+[10]
+Overfull \hbox (22.25865pt too wide) in paragraph at lines 465--469
+\OT1/cmr/m/n/10 where $[][] = [][] [] [][]$ and $[] = []$.
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 502.
 
 (/usr/local/texlive/2013/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 452.
- [9] [10]
-(./barcast.aux) ) 
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 502.
+ [11]
+Overfull \hbox (112.11203pt too wide) in paragraph at lines 514--515
+[]\OT1/cmr/m/n/10 Sayer's dis-cus-sion on Wishart pri-ors http://www.math.wustl
+.edu/ sawyer/hmhandouts/Wishart.pdf 
+ []
+
+[12] (./barcast.aux) ) 
 Here is how much of TeX's memory you used:
- 2276 strings out of 493315
- 30984 string characters out of 6137904
- 104595 words of memory out of 5000000
- 5688 multiletter control sequences out of 15000+600000
+ 2278 strings out of 493315
+ 31000 string characters out of 6137904
+ 105625 words of memory out of 5000000
+ 5690 multiletter control sequences out of 15000+600000
  13934 words of font info for 49 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
  38i,17n,23p,1169b,197s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmbx10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmbx12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmex10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
-mextra/cmex7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmmi12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmmi5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmmi7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi8.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
-ib10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cmextr
-a/cmmib7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmr10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-17.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.
-pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
-></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></
-usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
-sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on barcast.pdf (10 pages, 200679 bytes).
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmbx10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmbx12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmex10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfo
+nts/cmextra/cmex7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmmi12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmmi5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmmi8.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmmib10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
+mextra/cmmib7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmr12.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr17.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr5.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.p
+fb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pf
+b></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
+
+Output written on barcast.pdf (12 pages, 206965 bytes).
 PDF statistics:
- 113 PDF objects out of 1000 (max. 8388607)
- 81 compressed objects within 1 object stream
+ 119 PDF objects out of 1000 (max. 8388607)
+ 85 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
