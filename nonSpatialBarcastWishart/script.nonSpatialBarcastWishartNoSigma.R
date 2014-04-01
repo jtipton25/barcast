@@ -13,8 +13,8 @@ library(mvtnorm)
 library(MASS)
 library(MCMCpack)
 source('~/barcast/rMVN.R')
-source('~/barcast/plots/make.output.plot.no.beta.0.R')
-source('~/barcast/nonSpatialBarcastWishart/mcmc.nonSpatialBarcastWishart.R')
+source('~/barcast/plots/make.output.plot.wishart.R')
+source('~/barcast/nonSpatialBarcastWishart/mcmc.nonSpatialBarcastWishartNoSigma.R')
 
 ##
 ## load data
@@ -69,7 +69,7 @@ n^2 - n - t
 nu.wish <- n + 2 # Must be between n and n^2 - t
 
 
-n.mcmc <- 100
+n.mcmc <- 5000
 n.burn <- floor(n.mcmc / 5)
 
 ##
