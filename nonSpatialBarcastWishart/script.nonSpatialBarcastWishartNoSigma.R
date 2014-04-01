@@ -68,8 +68,11 @@ sigma.squared.beta.1 <- 8
 n^2 - n - t
 nu.wish <- n + 2 # Must be between n and n^2 - t
 
+##
+## Need to determine how to keep the wishart matrix from growing as the degrees of freedom increase
+##
 
-n.mcmc <- 5000
+n.mcmc <- 500
 n.burn <- floor(n.mcmc / 5)
 
 ##

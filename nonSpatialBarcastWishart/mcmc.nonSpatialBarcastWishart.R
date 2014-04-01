@@ -99,7 +99,8 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   beta.1 <- rnorm(1, mu.beta.1, sigma.squared.beta.1)
   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   
-  Q <- riwish(nu.wish, I)
+#   Q <- riwish(nu.wish, I)
+  Q <- riwish(nu.wish, I / (nu.wish - n - 1)) ## maybe this keeps the wishart matrix from growing too fast
   Q.inv <- solve(Q)
   Sigma.epsilon <- sigma.squared * Q
   Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
@@ -254,7 +255,8 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     QT <- (X[ - 1, ] -  alpha * X[ - (t + 1), ] - Tbar.mat)
     Q0 <- t(QT) %*% QT
     q <- (Tbar - (1 - alpha) * mu)
-    Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I) / sigma.squared)
+#     Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I) / sigma.squared)
+    Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I) / (sigma.squared * (nu.wish + t - n - 1))) ## maybe this should be (nu.wish - t - n - 1) ??
     Q.inv <- solve(Q)
     Sigma.epsilon. <- sigma.squared * Q
     Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
