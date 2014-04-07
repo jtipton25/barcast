@@ -89,6 +89,11 @@ finish
 
 # x11()
 make.output.plot(out)
+
+# for(i in 1:33){
+#   matplot(out$Q.save[i, , n.burn:n.mcmc], type = 'l')
+# }
+
 # y <- apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean)
 # x <- 1:(t+1)
 # abline(lm(y~x), col = 'green')
@@ -115,7 +120,7 @@ make.output.plot(out)
 # abline(lm(y~x), col = 'green')
 # # 			plot(X, type = 'l', col = 'blue')
 # plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
-# 
+
 
 X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
 X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)

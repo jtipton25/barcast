@@ -99,7 +99,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   beta.1 <- rnorm(1, mu.beta.1, sigma.squared.beta.1)
   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   
-  Q <- riwish(nu.wish, I) / (nu.wish - n - 1)
+  Q <- riwish(nu.wish, I) # * (nu.wish - n - 1)
   Q.inv <- solve(Q)
 #   Sigma.epsilon <- sigma.squared * Q
   Sigma.epsilon <- Q
@@ -257,7 +257,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     Q0 <- t(QT) %*% QT
     q <- (Tbar - (1 - alpha) * mu)
 #     Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I) / sigma.squared)
-    Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I)) / (nu.wish + t - n - 1)
+    Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I)) # * (nu.wish + t - n - 1)
     Q.inv <- solve(Q)
 #     Sigma.epsilon. <- sigma.squared * Q
 #     Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
