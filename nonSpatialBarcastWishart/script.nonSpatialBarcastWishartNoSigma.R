@@ -72,7 +72,7 @@ nu.wish <- n + 2 # Must be between n and n^2 - t
 ## Need to determine how to keep the wishart matrix from growing as the degrees of freedom increase
 ##
 
-n.mcmc <- 10000
+n.mcmc <- 1000
 n.burn <- floor(n.mcmc / 5)
 
 ##
