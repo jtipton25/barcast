@@ -118,9 +118,14 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   }
   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   
+<<<<<<< HEAD
 
 #   Q <- riwish(nu.wish, I) #/ (nu.wish - n - 1)
 #   Q.inv <- solve(Q)
+=======
+  Q <- riwish(nu.wish, I) # * (nu.wish - n - 1)
+  Q.inv <- solve(Q)
+>>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
 #   Sigma.epsilon <- sigma.squared * Q
 #   Sigma.epsilon <- Q
 # #   Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
@@ -276,6 +281,23 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     }
     sigma.squared <- 1 / rgamma(1, alpha.epsilon + n * t / 2, beta.epsilon + sum(tmp) / 2)
     
+<<<<<<< HEAD
+=======
+#     Tbar <- apply(X[ - 1, ], 1, mean) - alpha * apply(X[ - (T + 1), ], 1, mean)
+    Tbar <- apply(X[ - 1, ], 2, mean) - alpha * apply(X[ - (T + 1), ], 2, mean)
+    Tbar.mat <- matrix(rep(Tbar, t), nrow = t, ncol = n, byrow = TRUE)
+    QT <- (X[ - 1, ] -  alpha * X[ - (t + 1), ] - Tbar.mat)
+    Q0 <- t(QT) %*% QT
+    q <- (Tbar - (1 - alpha) * mu)
+#     Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I) / sigma.squared)
+    Q <- riwish(t + nu.wish, (Q0 + t * q %*% t(q) + I)) # * (nu.wish + t - n - 1)
+    Q.inv <- solve(Q)
+#     Sigma.epsilon. <- sigma.squared * Q
+#     Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
+    Sigma.epsilon. <- Q
+    Sigma.epsilon.inv <- Q.inv
+
+>>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
     ##
     ## save variables
     ##

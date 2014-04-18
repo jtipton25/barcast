@@ -71,7 +71,11 @@ sigma.squared.beta.1 <- 8
 ## Need to determine how to keep the wishart matrix from growing as the degrees of freedom increase
 ##
 
+<<<<<<< HEAD
 n.mcmc <- 5000
+=======
+n.mcmc <- 10000
+>>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -89,7 +93,15 @@ finish
 # x11()
 # jpeg(file = '~/barcast/plots/wishartFitted_4_14_2014.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')
 make.output.plot(out)
+<<<<<<< HEAD
 # dev.off()
+=======
+
+# for(i in 1:33){
+#   matplot(out$Q.save[i, , n.burn:n.mcmc], type = 'l')
+# }
+
+>>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
 # y <- apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean)
 # x <- 1:(t+1)
 # abline(lm(y~x), col = 'green')
@@ -116,7 +128,7 @@ make.output.plot(out)
 # abline(lm(y~x), col = 'green')
 # # 			plot(X, type = 'l', col = 'blue')
 # plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
-# 
+
 
 X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
 X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
