@@ -33,12 +33,21 @@ t <- dim(WP)[1]
 # n.tree.mat[idx.na] <- n.trees$V1
 t.u <- c(1:451, 556) #years PDSI is unobserved
 t.o <- 452:555 # years PDSI is observed
+# t.cal <- 500:555 
+# t.val <- 452:499
+t.val <- 500:555
+t.cal <- 452:499
+##
+## Calibration and validation
+##
 WI <- rep(NA, length = t)
 WI[t.o] <- pdsi$X261
+WI.t.val <- WI[t.val]
+WI[t.val] <- NA
 
 W <- cbind(WI, WP)
 n <- dim(W)[2]
-H <- matrix(as.numeric(!is.na(W)), nrow = dim(W)[1], ncol = dim(W)[2])
+H <- !is.na(W)
 H.tmp <- rbind(rep(FALSE, dim(W)[2]), H)
 
 year <- rep(1:t, times = (length(W) / t))
@@ -66,20 +75,7 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-
-##
-## Need to determine how to keep the wishart matrix from growing as the degrees of freedom increase
-##
-
-<<<<<<< HEAD
-n.mcmc <- 1000
-=======
-<<<<<<< HEAD
-n.mcmc <- 5000
-=======
-n.mcmc <- 10000
->>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
->>>>>>> 81a38bee5b9ed8717308ed766de934ca153f0a8a
+n.mcmc <- 20000
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -88,24 +84,16 @@ n.burn <- floor(n.mcmc / 5)
 
 start <- Sys.time()
 # Rprof(file = '~/barcast/nonSpatialBarcastWishart/Rprof.out', line.profiling = TRUE)
-out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.epsilon, beta.epsilon, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1, nu.wish)
+out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.epsilon, beta.epsilon, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1)
 # Rprof(NULL)
 # summaryRprof('~/barcast/nonSpatialBarcastWishart/Rprof.out')
 finish <- Sys.time() - start
 finish 
 
 # x11()
-# jpeg(file = '~/barcast/plots/wishartFitted_4_14_2014.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')
+# jpeg(file = '~/barcast/plots/barcast_4_16_2014.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')
 make.output.plot(out)
-<<<<<<< HEAD
 # dev.off()
-=======
-
-# for(i in 1:33){
-#   matplot(out$Q.save[i, , n.burn:n.mcmc], type = 'l')
-# }
-
->>>>>>> 25fc0822b590ac9becfe6b24421e34c5bc599029
 # y <- apply(out$X.save[, 1, n.burn:n.mcmc], 1, mean)
 # x <- 1:(t+1)
 # abline(lm(y~x), col = 'green')
@@ -132,21 +120,28 @@ make.output.plot(out)
 # abline(lm(y~x), col = 'green')
 # # 			plot(X, type = 'l', col = 'blue')
 # plot(sqrt((WI[t.o] - apply(out$X.save[, 13, n.burn:n.mcmc], 1, mean)[t.o + 1])^2), type = 'l', main = 'RMSE for PDSI', ylab = 'RMSE for PDSI')
+# 
+# 
+# X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
+# X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
+# for(k in (n.burn + 1):n.mcmc){
+#   if(k %% 100 == 0){
+#     cat(k, ' ')
+#   }
+#   X.mat[H.tmp] <- out$X.save[, , k][H.tmp]
+#   X.save[, k - n.burn] <- rowMeans(X.mat, na.rm = TRUE)
+# }
+# 
+# matplot(apply(X.save[-1, ], 1, mean), type = 'l')
+# abline(h=0, col = 'red')
+# lines(apply(X.save[-1, ], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha = 0.25))
+# lines(apply(X.save[-1, ], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha = 0.25))
+# lines(WI, col = adjustcolor('blue', alpha = 0.5))
 
-
-X.mat <- matrix(NA, nrow = t + 1, dim(H.tmp)[2])
-X.save <- matrix(0, nrow = t + 1, n.mcmc - n.burn)
-for(k in (n.burn + 1):n.mcmc){
-  if(k %% 100 == 0){
-    cat(k, ' ')
-  }
-  X.mat[H.tmp] <- out$X.save[, , k][H.tmp]
-  X.save[, k - n.burn] <- rowMeans(X.mat, na.rm = TRUE)
-}
-
-matplot(apply(X.save[-1, ], 1, mean), type = 'l')
-abline(h=0, col = 'red')
-lines(apply(X.save[-1, ], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha = 0.25))
-lines(apply(X.save[-1, ], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha = 0.25))
-lines(WI, col = adjustcolor('blue', alpha = 0.5))
-
+RE <- 1 - sum((apply(out$X.save[, n.burn:n.mcmc], 1, mean)[t.val + 1] - WI.t.val)^2) / sum((WI.t.val - mean(WI.t.val))^2)
+RE
+RMSE.val <- (apply(out$X.save[, n.burn:n.mcmc], 1, mean)[t.val + 1] - WI.t.val)^2
+plot(RMSE.val, type = 'l')
+plot(WI.t.val, type = 'l', col = 'blue')
+lines(apply(out$X.save[, n.burn:n.mcmc], 1, mean)[t.val + 1], col = 'red')
+mean(RMSE.val)
