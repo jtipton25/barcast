@@ -6,7 +6,7 @@
 ##
 ##
 ## Note that in the code X represents the field T in the Barcast Model
-mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.epsilon, beta.epsilon, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1, nu.wish){
+mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.epsilon, beta.epsilon, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1){
   
   ##
   ## libraries and subroutines
@@ -14,23 +14,6 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   
   library(truncnorm)
   
-#   make.HIt <- function(i){
-#     if(NIt[i] == 0){
-#       return(0)
-#     } else {
-#       return(1)
-# #       return(c(1, rep(0, n - 1)))
-#     }
-#   }
-#   
-#   make.HPt <- function(i){
-#     tmp <- vector(0, nrow = NPt[i], ncol = n)
-#     for(j in 1:NPt[i]){
-#       tmp[j, 1 + which(HP[i, ] == 1)[j]] <- 1
-#     }
-#     return(tmp)
-#   }
-#   
   make.Ht <- function(i, beta.1){
     c(HIt[i], (HPt[i, ] * beta.1))
   }
@@ -60,20 +43,12 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   ##
   
   W <- as.matrix(cbind(WI, WP))
-  Wtmp <- as.matrix(W)
-  Wtmp[is.na(Wtmp)] <- 0
-  WP <- as.matrix(WP)
-  WPtmp <- as.matrix(WP)
-  WPtmp[is.na(WPtmp)] <- 0
+  H <- matrix(as.numeric(!is.na(W)), nrow = dim(W)[1], ncol = dim(W)[2])
   H.idx <- !is.na(W)
   HP.idx <- !is.na(WP)
   HI.idx <- !is.na(WI)
-  H <- matrix(as.numeric(!is.na(W)), nrow = dim(W)[1], ncol = dim(W)[2])
   HIt <- H[, 1]
   HPt <- H[, - 1]
-  t <- dim(W)[1]
-  n <- dim(W)[2]
-  X <- vector(length = t + 1)
   NI <- 1
   NP <- dim(WP)[2]
   NIt <- vector(length = t)
@@ -86,13 +61,17 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   }
   MI <- sum(NIt)  
   MP <- sum(NPt)
-  
-#   HI.idx <- !is.na(WI)
-#   HI <- ifelse(HI.idx, 1, 0)
-#   HP.idx <- !is.na(WP)
-#   HP <- ifelse(HP.idx, 1, 0)
-#   H <- !is.na(W)
-#   
+  W[is.na(W)] <- 0
+  W <- as.matrix(W)
+  WP[is.na(WP)] <- 0
+  WP <- as.matrix(WP)
+  WI[is.na(WI)] <- 0
+  WI <- as.matrix(WI)
+  t <- dim(W)[1]
+  n <- dim(W)[2]
+  X <- vector(length = t + 1)
+
+
   Wt <- lapply(1:t, make.Wt)
   WPt <- lapply(1:t, make.WPt)
   WIt <- lapply(1:t, make.WIt) 
@@ -116,23 +95,9 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   for(i in 1:t){
     Bt[[i]] <- beta.0 * Jt[[i]]
   }
-  Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
-  
-
-#   Q <- riwish(nu.wish, I) #/ (nu.wish - n - 1)
-#   Q.inv <- solve(Q)
-#   Sigma.epsilon <- sigma.squared * Q
-#   Sigma.epsilon <- Q
-# #   Sigma.epsilon.inv <- 1 / sigma.squared * Q.inv
-#   Sigma.epsilon.inv <- Q.inv
+#   Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
   Sigma.full <- diag(c(rep(tau.squared.I, NI), rep(tau.squared.P, NP)))
   Sigma.full.inv <- diag(c(rep(1 / tau.squared.I, NI), rep(1 / tau.squared.P, NP)))
-#   Sigma <- vector('list', length = t)
-#   Sigma.inv <- vector('list', length = t)
-#   for(i in 1:t){
-#     Sigma[[i]] <- diag(c(rep(tau.squared.I, NIt[i]), rep(tau.squared.P, NPt[i])))
-#     Sigma.inv[[i]] <- diag(c(rep(1 / tau.squared.I, NIt[i]), rep(1 / tau.squared.P, NPt[i])))
-#   }  
   Sigma <- diag(c(rep(tau.squared.I, 1), rep(tau.squared.P, n - 1)))
   Sigma.inv <- diag(c(rep(1 / tau.squared.I, 1), rep(1 / tau.squared.P, n - 1)))
   
@@ -140,12 +105,13 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
   ## set up save variables
   ##
   
-  X.save <- array(dim = c(t + 1, n, n.mcmc))
+  X.save <- matrix(nrow = t + 1, ncol = n.mcmc)
   alpha.save <- vector(length = n.mcmc)
   mu.save <- vector(length = n.mcmc)
   phi.save <- vector(length = n.mcmc)
   tau.I.save <- vector(length = n.mcmc)
   tau.P.save <- vector(length = n.mcmc)
+  beta.0.save <- vector(length = n.mcmc)
   beta.1.save <- vector(length = n.mcmc)
   sigma.squared.epsilon.save <- vector(length = n.mcmc)
   
@@ -167,14 +133,14 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     # for t = 1,...,T - 1
     for(i in 1:(t - 1)){ # note the offset since t = 0 is the first element of the matrix X
-      A.chol <- sqrt(t(Ht[[i]]) %*%  Sigma.inv %*% Ht[[i]] + (alpha^2 + 1) /  sigma.squared.epsilon)
-      b <- t(Ht[[i]]) %*% Sigma.inv %*% (Wtmp[i, ] - Bt[[i]]) + (alpha * X[i] + (1 - alpha) * mu) / sigma.squared.epsilon + alpha * (X[i + 2] - (1 - alpha) * mu) / sigma.squared.epsilon
+      A.chol <- sqrt(t(c(HIt[i], HPt[i, ] * beta.1)) %*%  Sigma.inv %*% (c(HIt[i], HPt[i, ] * beta.1)) + (alpha^2 + 1) /  sigma.squared.epsilon)
+      b <- t(c(HIt[i], HPt[i, ] * beta.1)) %*% Sigma.inv %*% (W[i, ] - Bt[[i]]) + (alpha * X[i] + (1 - alpha) * mu) / sigma.squared.epsilon + alpha * (X[i + 2] - (1 - alpha) * mu) / sigma.squared.epsilon
       X[i + 1] <- rMVN(A.chol, b)
     }
     
     # for t = T
-    A.chol <- sqrt(t(Ht[[t]]) %*% Sigma.inv %*% Ht[[t]] + 1 / sigma.squared.epsilon)
-    b <- t(Ht[[t]]) %*% Sigma.inv %*% (Wtmp[[t]] - Bt[[t]]) + (alpha * X[t] + (1 - alpha) * mu) / sigma.squared.epsilon
+    A.chol <- sqrt(t(H[t, ] * beta.1) %*% Sigma.inv %*% (H[t, ] * beta.1) + 1 / sigma.squared.epsilon)
+    b <- t(c(HIt[t], HPt[t, ] * beta.1)) %*% Sigma.inv %*% (W[t, ] - Bt[[t]]) + (alpha * X[t] + (1 - alpha) * mu) / sigma.squared.epsilon
     X[t + 1] <- rMVN(A.chol, b)
     
     ##
@@ -184,7 +150,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     A.chol <-sqrt(MP / tau.squared.P + 1 / sigma.squared.beta.0)
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- sum(WPtmp[i, ] - beta.1 * HPt[i, ] * X[i + 1])
+      tmp[i] <- HPt[i, ] %*% (WP[i, ] - beta.1 * HPt[i, ] * X[i + 1])
     }
     b <- sum(tmp) / tau.squared.P + mu.beta.0  / sigma.squared.beta.0
     beta.0 <- rMVN(A.chol, b)
@@ -198,16 +164,17 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- t(HPt[i, ] * X[i + 1]) %*% (HPt[i, ] * X[i + 1])
+      tmp[i] <- 
+        t(HPt[i, ] * X[i + 1]) %*% (HPt[i, ] * X[i + 1])
     }
     A.chol <-sqrt(sum(tmp) / tau.squared.P + 1 / sigma.squared.beta.1)       
     tmp <- vector(length = t)
     for(i in 1:t){
-      tmp[i] <- t(HPt[i, ] * X[i + 1]) %*% (WPtmp[i, ])
+      tmp[i] <- t(HPt[i, ] * X[i + 1]) %*% (WP[i, ] - Bt[[i]][ - 1])
     }
     b <- sum(tmp) / tau.squared.P + mu.beta.1 / sigma.squared.beta.1
     beta.1 <- rMVN(A.chol, b)
-    Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
+#     Ht <- lapply(1:t, make.Ht, beta.1 = beta.1)
     
     ##
     ## sample mu
@@ -245,7 +212,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     tmp <- vector(length = t)
     for(i in 1:t){
       if(NIt[i] != 0){
-        tmp[i] <- (WIt[[i]] - HIt[i] %*% X[i + 1]) %*% (WIt[[i]] - HIt[i] %*% X[i + 1])
+        tmp[i] <- (WI[i] - HIt[i] %*% X[i + 1]) %*% (WI[i] - HIt[i] %*% X[i + 1])
       } else {
         tmp[i] <- 0
       }
@@ -258,8 +225,7 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     
     tmp <- vector(length = t)
     for(i in 1:t){
-#       tmp[i] <- t(WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - beta.0) %*% (WPt[[i]] - beta.1 * HPt[[i]] %*% X[i + 1, ] - beta.0)
-      tmp[i] <- t(WPtmp[i, ] - beta.1 * HPt[i, ] * X[i + 1]) %*% (WPtmp[i, ] - beta.1 * HPt[i, ] * X[i + 1])
+      tmp[i] <- t(WP[i, ] - beta.1 * HPt[i, ] * X[i + 1] - Bt[[i]][ - 1]) %*% (WP[i, ] - beta.1 * HPt[i, ] * X[i + 1] - Bt[[i]][ - 1])
     }
     tau.squared.P <- 1 / rgamma(1, alpha.P + MP / 2, beta.P + sum(tmp) / 2)
     
@@ -267,14 +233,14 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     Sigma.inv <- diag(c(rep(1 / tau.squared.I, 1),rep(1 / tau.squared.P, n - 1))) 
     
     ##
-    ## sample sigma.squared
+    ## sample sigma.squared.epsilon
     ##
     
     tmp <- vector(length = t)
     for(i in 1:t){
       tmp[i] <- (X[i + 1] - alpha * X[i] - (1 - alpha) * mu) %*% (X[i + 1] - alpha * X[i] - (1 - alpha) * mu)
     }
-    sigma.squared <- 1 / rgamma(1, alpha.epsilon + n * t / 2, beta.epsilon + sum(tmp) / 2)
+    sigma.squared.epsilon <- 1 / rgamma(1, alpha.epsilon + t / 2, beta.epsilon + sum(tmp) / 2)
     
     ##
     ## save variables
@@ -285,11 +251,10 @@ mcmc <- function(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha,
     mu.save[l] <- mu
     tau.I.save[l] <- tau.squared.I
     tau.P.save[l] <- tau.squared.P
+    beta.0.save[l] <- beta.0
     beta.1.save[l] <- beta.1
     sigma.squared.epsilon.save[l] <- sigma.squared.epsilon
   }    
   
-#   list(X.save = X.save, alpha.save = alpha.save, mu.save = mu.save, phi.save = phi.save, tau.I.save = tau.I.save, tau.P.save = tau.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, rho.save = rho.save, rho.accept = rho.accept)  
-#   list(X.save = X.save, alpha.save = alpha.save, mu.save = mu.save, phi.save = phi.save, tau.I.save = tau.I.save, tau.P.save = tau.P.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, Q.save = Q.save)  
-  list(X.save = X.save, alpha.save = alpha.save, mu.save = mu.save, phi.save = phi.save, tau.I.save = tau.I.save, tau.P.save = tau.P.save, beta.1.save = beta.1.save, sigma.squared.epsilon.save = sigma.squared.epsilon.save)  
+  list(X.save = X.save, alpha.save = alpha.save, mu.save = mu.save, phi.save = phi.save, tau.I.save = tau.I.save, tau.P.save = tau.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.epsilon.save = sigma.squared.epsilon.save)  
 }
