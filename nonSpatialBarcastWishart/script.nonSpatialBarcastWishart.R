@@ -69,7 +69,7 @@ n^2 - n - t
 nu.wish <- n + 2 # Must be between n and n^2 - t
 
 
-n.mcmc <- 1000
+n.mcmc <- 100
 n.burn <- floor(n.mcmc / 5)
 
 ##

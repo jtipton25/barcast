@@ -12,7 +12,7 @@ set.seed(10)
 library(dplR)
 library(mvtnorm)
 library(MASS)
-library(MCMCpack)
+suppressMessages(library(MCMCpack))
 source('~/barcast/rMVN.R')
 source('~/barcast/plots/make.output.plot.wishart.R')
 source('~/barcast/nonSpatialBarcastWishartTakeTwo/mcmc.nonSpatialBarcast.R')
@@ -83,10 +83,10 @@ n.burn <- floor(n.mcmc / 5)
 ##
 
 start <- Sys.time()
-# Rprof(file = '~/barcast/nonSpatialBarcastWishart/Rprof.out', line.profiling = TRUE)
+# Rprof(filename = '~/barcast/nonSpatialBarcastWishartTakeTwo/Rprof.out', line.profiling = TRUE)
 out <- mcmc(WI, WP, n.mcmc, mu.0.tilde, sigma.squared.0.tilde, alpha.alpha, beta.alpha, mu.0, sigma.squared.0, alpha.epsilon, beta.epsilon, alpha.phi, beta.phi, alpha.I, beta.I, alpha.P, beta.P, mu.beta.0, sigma.squared.beta.0, mu.beta.1, sigma.squared.beta.1)
 # Rprof(NULL)
-# summaryRprof('~/barcast/nonSpatialBarcastWishart/Rprof.out')
+# summaryRprof('~/barcast/nonSpatialBarcastWishartTakeTwo/Rprof.out', lines = "show")
 finish <- Sys.time() - start
 finish 
 
