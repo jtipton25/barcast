@@ -145,3 +145,11 @@ plot(RMSE.val, type = 'l')
 plot(WI.t.val, type = 'l', col = 'blue')
 lines(apply(out$X.save[, n.burn:n.mcmc], 1, mean)[t.val + 1], col = 'red')
 mean(RMSE.val)
+
+
+matplot(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, mean), type = 'l', main = 'fitted PDSI', ylab = 'PDSI', ylim = c(-4, 4))
+abline(h = 0, col = 'blue')
+lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
+lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
+lines(WI, col = adjustcolor('blue', alpha = 0.5))
+lines(lowess(1:t, apply(out$X.save[ - 1, n.burn:n.mcmc], 1, mean), f = 1 / 20), col = 'dark green')
