@@ -6,10 +6,20 @@ make.output.plot <- function(out, resid = FALSE, file = 'filepath'){
 			layout(matrix(1:9, nrow = 3, ncol = 3))
 			matplot(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, median), type = 'l', main = 'fitted PDSI', ylab = 'PDSI', ylim = c(-4, 4))
 			steps <- 40
-			for(k in (2:steps) / steps){
-			  polygon(c(1:t, t:1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = (k - 1 / steps) / 2), rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = k / 2))), col =  adjustcolor('black', alpha.f = k), border = FALSE)
-        polygon(c(1:t, t:1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - k / 2), rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - (k - 1 / steps) / 2))), col =  adjustcolor('black', alpha.f = k), border = FALSE)
-			}
+      quant.upper <- matrix(nrow = t, ncol = steps - 1)
+			quant.lower <- matrix(nrow = t, ncol = steps - 1)
+			for(k in 1:(steps - 1)){
+        quant.upper[, k] <- apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - ((k + 1) / (2 * steps)))
+			  quant.lower[, k] <- apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = ((k + 1) / (2 * steps)))
+			}  
+# 			for(k in (2:steps) / steps){
+# 			  polygon(c(1:t, t:1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = (k - 1 / steps) / 2), rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = k / 2))), col =  adjustcolor('black', alpha.f = k), border = FALSE)
+#         polygon(c(1:t, t:1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - k / 2), rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - (k - 1 / steps) / 2))), col =  adjustcolor('black', alpha.f = k), border = FALSE)
+# 			}
+      for(k in 2:(steps - 1)){
+        polygon(c(1:t, t:1), c(quant.upper[, k - 1], rev(quant.upper[, k])), col =  adjustcolor('black', alpha.f = (k - 1) / steps), border = FALSE)
+        polygon(c(1:t, t:1), c(quant.lower[, k], rev(quant.lower[, k - 1])), col =  adjustcolor('black', alpha.f = (k - 1) / steps), border = FALSE)
+      }
 			abline(h = 0, col = 'blue')
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = adjustcolor('red', alpha = 0.25))
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
@@ -17,10 +27,14 @@ make.output.plot <- function(out, resid = FALSE, file = 'filepath'){
 			
       # plot only current period
 			matplot(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, mean)[t.o], type = 'l', main = 'fitted PDSI Instrumental', ylab = 'PDSI', ylim = c(-4, 4))
-			for(k in (2:steps) / steps){
-			  polygon(c(1:length(t.o), length(t.o):1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = (k - 1 / steps) / 2)[t.o], rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = k / 2)[t.o])), col =  adjustcolor('black', alpha.f = k), border = FALSE)
-			  polygon(c(1:length(t.o), length(t.o):1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - k / 2)[t.o], rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - (k - 1 / steps) / 2)[t.o])), col =  adjustcolor('black', alpha.f = k), border = FALSE)
-			}
+# 			for(k in (2:steps) / steps){
+# 			  polygon(c(1:length(t.o), length(t.o):1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = (k - 1 / steps) / 2)[t.o], rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = k / 2)[t.o])), col =  adjustcolor('black', alpha.f = k), border = FALSE)
+# 			  polygon(c(1:length(t.o), length(t.o):1), c(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - k / 2)[t.o], rev(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 1 - (k - 1 / steps) / 2)[t.o])), col =  adjustcolor('black', alpha.f = k), border = FALSE)
+# 			}
+      for(k in 2:(steps - 1)){
+        polygon(c(1:length(t.o), length(t.o):1), c(quant.upper[, k - 1][t.o], rev(quant.upper[, k][t.o])), col =  adjustcolor('black', alpha.f = (k - 1) / steps), border = FALSE)
+        polygon(c(1:length(t.o), length(t.o):1), c(quant.lower[, k][t.o], rev(quant.lower[, k - 1][t.o])), col =  adjustcolor('black', alpha.f = (k - 1) / steps), border = FALSE)
+      }
 			abline(h = 0, col = 'blue')
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.025)[t.o], col = adjustcolor('red', alpha = 0.25))
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.975)[t.o], col = adjustcolor('red', alpha = 0.25))
