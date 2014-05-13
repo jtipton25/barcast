@@ -153,3 +153,4 @@ lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.025), col = 
 lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.975), col = adjustcolor('red', alpha = 0.25))
 lines(WI, col = adjustcolor('blue', alpha = 0.5))
 lines(lowess(1:t, apply(out$X.save[ - 1, n.burn:n.mcmc], 1, mean), f = 1 / 20), col = 'dark green')
+
