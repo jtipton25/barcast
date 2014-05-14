@@ -38,7 +38,7 @@ make.output.plot <- function(out, resid = FALSE, file = 'filepath'){
 			abline(h = 0, col = 'blue')
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.025)[t.o], col = adjustcolor('red', alpha = 0.25))
 			lines(apply(out$X.save[ - 1, n.burn:n.mcmc], 1, quantile, probs = 0.975)[t.o], col = adjustcolor('red', alpha = 0.25))
-			lines(WI[t.o], col = adjustcolor('blue', alpha = 0.5))
+			lines(pdsi$X261, col = adjustcolor('blue', alpha = 0.5))
 			# 			plot(X, type = 'l', col = 'blue')
 			MSPE <- sqrt((WI[t.o] - apply(out$X.save[ - 1, n.burn:n.mcmc], 1, mean)[t.o + 1])^2)
       plot(MSPE, type = 'l', ylab = 'RMSE for PDSI', main = paste('RMSE for PDSI ', round(mean(MSPE), 2)))
