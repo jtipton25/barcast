@@ -1,0 +1,301 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\def\bm#1{\mbox{\boldmath $#1$}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+\title{Barcast Model}
+%%
+%% Begin Document
+%%
+\begin{document}
+\maketitle
+%
+%%
+%% Model Statement
+%%
+%
+\section{Barcast Model}
+%
+%%
+%% Data Model
+%%
+%
+\subsection{Data Model}
+%
+\begin{align*}
+%
+\bm{W}_t & = \bm{H}_t T_t + \bm{B}_t + \bm{\eta}_t & \bm{\eta}_t & \sim \mbox{N}(\bm{0}, \bm{\Sigma}_t) & \bm{\Sigma}_t & = \left( \begin{array}{cc} \bm{\Sigma}_{It} & \bm{0}\\ \bm{0} & \bm{\Sigma}_{Pt} \end{array} \right)
+%
+\end{align*}
+%
+where $\bm{W}_t = \left( \begin{array}{c} \bm{W}_{It} \\ \bm{W}_{Pt} \end{array} \right)$ is a vector of instrumental observations $\bm{W}_{It}$ and proxy observations $\bm{W}_{Pt}$ at time $t$, $T_t$ is a latent climate variable, $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{\beta}_1 \bm{H}_{Pt} \end{array} \right)$, $\bm{B}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{H}_{Pt} \end{array} \right) \left( \begin{array}{c} \bm{0}_{N_I}\\ \bm{\beta}_0 \end{array} \right)$, $\bm{\Sigma}_{It} = \tau_I^2 \bm{I}_{N_{It}}$, $\bm{\Sigma}_{Pt} = \tau_P^2 \bm{I}_{N_{Pt}}$, $N_I$ is the total number of instrumental observations, $N_P$ is the total number of proxy observations, $N_{It}$ is the number of instrumental observations at time $t$, $N_{Pt}$ is the number of proxy observations at time $t$, $\bm{H}_{It}$ and $\bm{H}_{Pt}$ are selection matrices indicating whether the instrumental or proxy variable was measured at time $t$, and $\bm{\beta}_0$ and $\bm{\beta}_1$ are regression coefficients relating the proxy observations and latent field. 
+%
+%%
+%% Process Model
+%%
+%
+\subsection{Process Model}
+%
+\begin{align*}
+%
+\bm{T} & \sim \mbox{N}\left( \bm{0}, \sigma^2 \bm{Q} \right) \\
+%
+% T_t - \mu & = \alpha \left( T_{t - 1} - \mu \right) + \epsilon_t  & \epsilon_t & \sim \mbox{N}(0, \sigma^2_\epsilon)
+%
+\end{align*}
+%
+where $\bm{Q} = \bm{D} - \bm{W}$ is an intrinsic conditionally autoregressive covariance matrix where $\bm{D}$ is a matrix that has the counts of the number of neighbors of each location on the diagonal and $\bm{W}_{i j}$ is 1 if location $i$ is a neighbor of location $j$ and 0 otherwise. The process can be written using a basis representation of the spectral decomposition of $\bm{Q}$ as
+%
+\begin{align*}
+%
+\bm{T} & \sim \mbox{N}\left( \bm{Z} \bm{\alpha}, \sigma^2 \bm{I} \right) \\
+%
+\end{align*}
+%
+where $\bm{Z}$ is the matrix with the eignevectors of $\bm{Q}$ as columns that represent the basis functions with random coefficients $\alpha$ given by
+%
+\begin{align*}
+%
+\bm{\alpha} & \sim \mbox{N}\left( \bm{0}, \bm{\Lambda} \right) \\
+%
+\end{align*}
+%
+where $\bm{\Lambda}$ is a diagonal matrix of the eigenvalues of $\bm{Q}$.
+%
+%%
+%% Parameter Model
+%%
+%
+\subsection{Parameter Model}
+%
+\begin{align*}
+%
+\bm{\alpha} | \bm{Q} & \sim \mbox{N}\left(\bm{0}, \bm{\Lambda}, \right)\\
+%
+\left[ \sigma^2 \right] & \propto \frac{1} {\sigma^2} \\
+%
+\left[ \tau^2_I \right] & \propto \frac{1} {\tau^2_I} \\
+%
+\left[ \tau^2_P \right] & \propto \frac{1} {\tau^2_P} \\
+%
+\bm{\beta}_0 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_0^{ - 1} \right) \\
+%
+\bm{\beta}_1 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_1^{ - 1} \right) \\
+%
+\end{align*}
+%
+%
+%%
+%% Posterior
+%%
+%
+\section{Posterior}
+%
+\begin{align*}
+%
+\prod_{t = 1}^T \left[ T_t, \bm{\beta}_0, \bm{\beta}_1, \bm{\alpha}, \tau^2_I, \tau^2_P, \sigma^2 \middle| \bm{W}_t \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\ 
+& \hspace{6mm} \times \left[ \bm{\beta}_0 \middle| \tau^2_P \right] \left[ \bm{\beta}_1 \middle| \tau^2_P \right] \left[ \tau^2_I \right] \left[ \tau^2_P \right] \left[ \bm{\alpha} \middle| \bm{Q} \right] \left[ \sigma^2 \right] 
+%
+\end{align*}
+%
+%%
+%% Full Conditionals
+%%
+%
+\section{Appendix}
+%
+%%
+%% Full Conditional for Latent Field T
+%%
+%
+\subsection{Full Conditional for $\bm{T}$}
+%
+\begin{align*}
+%
+\left[ \bm{T} \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\
+%
+& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right)  \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \sigma^2} \left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \left[ T_t^2 \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \bm{H}_t \right) - T_t \left( \bm{H}_t^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \bm{B}_t \right) \right) \right] \right\} } \\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \sigma^2} \left[ \bm{T}^T \bm{T} - 2 \bm{T}^T \bm{Z} \bm{\alpha} \right] \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{T}^T \left( \tilde{\bm{A}} + \frac{1} {\sigma^2} \bm{I} \right) \bm{T} - 2 \bm{T}^T \left( \tilde{\bm{b}} + \frac{\bm{Z} \bm{\alpha}} {\sigma^2} \right) \right] \right\} } \\
+%
+\end{align*}
+%
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \tilde{\bm{A}} + \frac{1} {\sigma^2} \bm{I} \right)^{ - 1} \\ 
+%
+\bm{b} & = \tilde{\bm{b}} + \frac{\bm{Z} \bm{\alpha}} {\sigma^2} .\\
+%
+\end{align*}
+%
+where $\tilde{\bm{A}} = \mbox{diag} \left( \bm{H}_1^T \bm{\Sigma}_1^{ - 1} \bm{H}_1, \ldots, \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \bm{H}_T \right)$ and $\tilde{\bm{b}} = \left( \bm{H}_1^T \bm{\Sigma}_1^{ - 1} \left( \bm{W}_1 - \bm{B}_1 \right), \ldots,  \bm{H}_T^T \bm{\Sigma}_T^{ - 1} \left( \bm{W}_T - \bm{B}_T \right) \right)^T$
+%
+%%
+%% Full Conditional for Beta_0
+%%
+%
+\subsection{Full conditional for $\bm{\beta}_0$}
+%
+\begin{align*}
+%
+\left[ \bm{\beta}_0 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{\beta}_0 \middle| \tau^2_P \right]\\
+%
+& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_0^T \bm{\Delta}_0 \bm{\beta}_0 \right\} } \\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right) \bm{\beta}_0 - 2 \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right) \right) \right] \right\} }\\
+%
+\end{align*}
+%
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+\begin{align*}
+%
+\bm{A}^{ - 1} & =  \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right)^{ - 1} \\
+%
+\bm{b} & =  \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right). \\
+%
+\end{align*}
+%
+%%
+%% Full Conditional for Beta_1
+%%
+%
+\subsection{Full conditional for $\bm{\beta}_1$}
+%
+\begin{align*}
+%
+\left[ \bm{\beta}_1 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{\beta}_1 \middle| \tau^2_P \right]\\
+%
+& \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta_1}^T \bm{\Delta}_1 \bm{\beta}_1 \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \bm{\beta}_1 \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right) \right) \right\} }\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \bm{\beta}_1 \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right) \right) \right\} }\\
+%
+%
+\end{align*}
+%
+which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right)^{ - 1}\\
+%
+\bm{b} & = \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right). \\
+%
+\end{align*}
+%
+%%
+%% Full conditional for tau^2_I
+%%
+%
+\subsection{Full conditional for $\tau^2_I$}
+%
+\begin{align*}
+%
+\left[ \tau^2_I \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_I \right] \\
+%
+& \propto \prod_{t = 1}^T \left| \bm{\Sigma}_t \right|^{ - \frac{1} {2}} \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} } \frac{1} {\tau^2_I}\\
+%
+& \propto \left( \tau^2_I \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{It} - 1} \exp{ \left\{ - \frac{1} {2} \sum_{t = 1}^T \frac{\left( W_{It} - \left( H_{It} T_t + B_{It} \right) \right)^2} {\tau^2_I} \right\} } \\
+%
+& \propto \left( \tau^2_I \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{It} - 1} \exp{ \left\{ - \frac{1} {\tau^2_I} \left( \frac{1} {2} \sum_{t = 1}^T \left( W_{It} - H_{It} T_t \right)^2 \right) \right\} } \\
+%
+\end{align*}
+%
+which is IG$\left( \frac{1} {2} \sum_{t = 1}^T N_{It}, \frac{1} {2} \sum_{t = 1}^T \left( W_{It} - H_{It} T_t \right)^2 \right)$
+%
+%%
+%% Full conditional for tau^2_P
+%%
+%
+\subsection{Full conditional for $\tau^2_P$}
+%
+\begin{align*}
+%
+\left[ \tau^2_P \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_P \right] \\
+%
+& \propto \prod_{t = 1}^T \left| \bm{\Sigma}_t \right|^{ - \frac{1} {2}} \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} } \frac{1} {\tau^2_P}\\
+%
+& \propto \left( \tau^2_P \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{Pt} - 1}\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \bm{\beta}_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \bm{\beta}_0 \right) \right) \right) \right\} }\\
+%
+\end{align*}
+%
+which is IG$\left( \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \bm{\beta}_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \bm{\beta}_0 \right) \right) \right)$. \\
+%
+%%
+%% Full Condtional for alpha
+%%
+%
+\subsection{Full conditional for $\bm{\alpha}$}
+%
+\begin{align*}
+%
+\left[ \bm{\alpha} \middle| \cdot \right] & \propto \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \left[ \bm{\alpha} \middle| \bm{Q} \right]\\
+%
+& \propto \exp{ \left\{ - \frac{1} {2 \sigma^2} \left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right) \right\} } \exp{ \left\{ - \frac{1} {2} \bm{\alpha}^T \bm{\Lambda}^{ - 1} \bm{\alpha} \right\} } \\
+%
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{\alpha}^T \left( \frac{ \bm{Z}^T \bm{Z}} {\sigma^2} + \bm{\Delta}^{ - 1} \right) \bm{\alpha} - 2 \bm{\alpha}^T \frac{\bm{Z}^T \bm{T}} {\sigma^2} \right] \right\} }
+%
+\end{align*}
+%
+which is N($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
+%
+\begin{align*}
+%
+\bm{A}^{ - 1} & = \left( \frac{ \bm{Z}^T \bm{Z}} {\sigma^2} + \bm{\Delta}^{ - 1} \right)^{ - 1}\\
+%
+\bm{b} & = \frac{\bm{Z}^T \bm{T}} {\sigma^2}. \\
+%
+\end{align*}
+%
+%%
+%% Full conditional for sigma^2
+%%
+%
+\subsection{Full conditional for $\sigma^2$}
+%
+\begin{align*}
+%
+\left[ \sigma^2 \middle| \cdot \right] & \propto \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \left[ \sigma^2 \right]\\
+%
+& \propto \left( \sigma^2 \right)^{ - \frac{T} {2}} \exp{ \left\{ - \frac{1} {2 \sigma^2} \left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right) \right\} } \frac{1} {\sigma^2}\\ 
+%
+& \propto \left( \sigma^2 \right)^{ - \frac{T} {2} - 1} \exp{ \left\{ - \frac{1} {\sigma^2} \frac{\left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right)} {2} \right\} } \\ 
+%
+\end{align*}
+%
+which is IG$\left( \frac{T} {2}, \frac{\left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right)} {2} \right)$
+%
+\section{Extensions to the model}
+%
+\begin{itemize}
+%
+\item Predictive Process for $\Sigma_\epsilon$ in the spatial model
+\item Include the number of trees used to create a chronology in the model
+\item ???
+%
+\end{itemize}
+% which is MVN$\left( \bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1} \right)$ with $\bm{A}^{ - 1} = $ and $\bm{b} = $.
+% \left[ \middle| \cdot \right] & \propto \left[ \middle| \right] 
+% \exp{ \left\{ - \frac{1} {2} \right\} }
+% 
+\section{References}
+\begin{itemize}
+\item Martin Tingley's BARCAST papers
+\item  Sayer's discussion on Wishart priors http://www.math.wustl.edu/~sawyer/hmhandouts/Wishart.pdf
+\end{itemize}
+
+
+\end{document}
