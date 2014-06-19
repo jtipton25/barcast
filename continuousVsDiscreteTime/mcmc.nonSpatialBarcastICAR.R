@@ -2,10 +2,6 @@
 ## Model for analysis of tree ring chronologies at one spatial location ignoring different species
 ##
 
-## Next: Remove Sigma, Sigma.inv, Sigma.epsilon and Sigma.epsilon.inv
-##
-##
-## Note that in the code X represents the field T in the Barcast Model
 mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
   
   ##
@@ -26,11 +22,6 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
     return(tmp)
   }
   
-  make.tau.squared.P <- function(i, beta.1, T){
-    tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i])
-    return(t(tmp) %*% tmp)
-  }
-  
   make.tau.squared.P <- function(i, beta.0, beta.1, T){
     tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i] - beta.0 * HP[i, ])
     return(t(tmp) %*% tmp)
@@ -43,11 +34,16 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
   n.mcmc <- params$n.mcmc
   delta.0 <- params$delta.0
   detla.1 <- params$delta.1
+  num.truncate <- params$num.truncate
   if(method == 'discrete'){
     num.neighbors <- params$num.neighbors
   }
   if(method == 'continuous'){
-    phi.squared.prior <- params$phi.squared.prior
+    phi.squared.lower <- params$phi.squared.lower
+    phi.squared.upper <- params$phi.squared.upper
+    N.phi <- params$N.phi
+    phi.tune <- params$phi.tune
+    phi.squared.prior <- seq(phi.squared.lower, phi.squared.upper, length = N.phi)
   }
   
   t <- length(WI)
@@ -61,14 +57,6 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
   Delta.0 <- diag(delta.0)
   Delta.1 <- diag(delta.1)
   
-  ## initialize variance values <- this is naive, could do better?
-  
-  tau.squared.I <- 1 / rgamma(1, 1, 1)
-  tau.squared.P <- 1 / rgamma(1, 1, 1)
-  sigma.squared <- 1 / rgamma(1, 1, 1)
-  Sigma <- diag(c(tau.squared.I, rep(tau.squared.P, p)))
-  Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
-  
   NI.t <- vector(length = t)
   NP.t <- vector(length = t)
   for(i in 1:t){
@@ -81,61 +69,117 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
   ## initialize covariance matrix
   if(method == 'continuous'){
     D <- as.matrix(dist(1:t))
-    Q <- exp( - D^2 / phi.squared.prior) ## gaussian covariance matrix
+    Z <- vector('list', length = N.phi)
+    tZ <- vector('list', length = N.phi)
+    tZZ <- vector('list', length = N.phi)
+    Lambda <- vector('list', length = N.phi)
+    Lambda.inv <- vector('list', length = N.phi)
+    for(i in 1:N.phi){
+	    Q <- exp( - D^2 / phi.squared.prior[i]) ## gaussian covariance matrix
+	    pc <- prcomp(Q)
+	    Z[[i]] <- pc$rotation[, 1:num.truncate]
+	    tZ[[i]] <- t(Z[[i]])
+	    tZZ[[i]] <- tZ[[i]] %*% Z[[i]]
+	    Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
+	    Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
+    }
   } else if(method == 'discrete'){
     A <- make.neighborhood(num.neighbors, t)
     D <- diag(rowSums(A))
     Q <- D - A ## ICAR covariance matrix
+    pc <- prcomp(Q)
+    Z <- pc$rotation
+    tZ <- t(Z)
+    tZZ <- tZ %*% Z
+    Lambda <- diag(pc$sdev^2)
+    Lambda.inv <- diag(1 / pc$sdev^2)
   } else {
     stop("not a valid method")
   }
+	
+	if(method == 'continuous'){
+		phi.idx <- sample(1, 1:N.phi)
+		alpha <- rMVN(chol(Lambda.inv[[phi.idx]]), rep(0, num.truncate))
+	} 
+  if(method == 'discrete'){
+		alpha <- rMVN(chol(Lambda.inv), rep(0, t))
+  }
   
-  pc <- prcomp(Q)
-  Z <- pc$rotation
-  tZ <- t(Z)
-  tZZ <- tZ %*% Z
-  Lambda <- diag(pc$sdev^2)
-  Lambda.inv <- diag(1 / pc$sdev^2)
-  alpha <- rMVN(chol(Lambda.inv), rep(0, t))
-  devs <- rnorm(t, 0, sigma.squared)
-  
-  T <- Z %*% alpha + devs
-  T[HI == 1] <- WI[HI == 1] ## initialize the latent field with the observed measurements
+  if(method == 'continuous'){
+  	T <- Z[[i]] %*% alpha
+  }
+  if(method == 'discrete'){
+  	T <- Z %*% alpha
+  }
+    
+  T[HI == 1] <- WI[HI == 1] + rnorm(NI, 0, 0.01) ## initialize the latent field with the observed measurements
   
   ## initialize regression parameters
   beta.0 <- rep(0, p)
   beta.1 <- rnorm(p)
   
+  ## initialize variance values <- this is naive, could do better?
+  tau.squared.I <- 1 / rgamma(1, NI / 2, sum((WI * HI - T * HI)^2) / 2)
+  tau.squared.P <- 1 / rgamma(1, NP / 2, sum(sapply(1:t, make.tau.squared.P, beta.0 = beta.0, beta.1 = beta.1, T = T)) / 2)
+  Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
+  if(method == 'continuous'){
+  	tmp <- T - Z[[phi.idx]] %*% alpha	
+  }
+  if(method == 'discrete'){
+  	tmp <- T - Z %*% alpha	
+  }
+  
+  sigma.squared <- 1 / rgamma(1, t / 2, t(tmp) %*% tmp / 2)
+  rm(tmp)
+    
   ##
   ## set up save variables
   ##
   
-  T.save <- matrix(nrow = t, ncol = n.mcmc)
-  tau.squared.I.save <- vector(length = n.mcmc)
-  tau.squared.P.save <- vector(length = n.mcmc)
-  beta.0.save <- matrix(nrow = p, ncol = n.mcmc)
-  beta.1.save <- matrix(nrow = p, ncol = n.mcmc)
-  sigma.squared.save <- vector(length = n.mcmc)
-  alpha.save <- matrix(nrow = t, ncol = n.mcmc)
-  trend.save <- matrix(nrow = t, ncol = n.mcmc)
+  T.save <- matrix(0, nrow = t, ncol = n.mcmc)
+  tau.squared.I.save <- rep(0, n.mcmc)
+  tau.squared.P.save <- rep(0, n.mcmc)
+  beta.0.save <- matrix(0, nrow = p, ncol = n.mcmc)
+  beta.1.save <- matrix(0, nrow = p, ncol = n.mcmc)
+  sigma.squared.save <- rep(0, n.mcmc)
+  trend.save <- matrix(0, nrow = t, ncol = n.mcmc)
+  if(method == 'continuous'){
+  	alpha.save <- matrix(0, nrow = num.truncate, ncol = n.mcmc)
+  	phi.idx.save <- rep(0, n.mcmc)
+  	phi.accept <- 0
+  }
+  if(method == 'discrete'){
+  	alpha.save <- matrix(0, nrow = t, ncol = n.mcmc)
+  }
     
   ##
   ## mcmc loop
   ##
   
   for(l in 1:n.mcmc){
-    if(l %% 100 == 0) cat(' ', l)
+    if(l %% 100 == 0){
+    	cat(' ', l)
+    } 
     
     ##
     ## sample latent field T
     ##
     
-    A.tmp.chol <- chol(diag(NI.t * 1 / tau.squared.I + NP.t * 1 / tau.squared.P + sigma.squared))
+#     A.tmp.chol <- matrix(0, nrow = t, ncol = t)
+#     	chol(diag(NI.t * 1 / tau.squared.I + NP.t * 1 / tau.squared.P + sigma.squared))
     b <- rep(0, t)
+		A.tmp.vec <- rep(0, t)
     for(i in 1:t){
-      b[i] <- H[i, ] %*% Sigma.inv %*% W[i, ]
+    	A.tmp.vec[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1))
+      b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0))
     }
-    T <- rMVN(A.tmp.chol, b + Z %*% alpha / sigma.squared)
+		A.tmp.chol <- chol(diag(A.tmp.vec))
+    if(method == 'continuous'){
+	    T <- rMVN(A.tmp.chol, b + Z[[phi.idx]] %*% alpha / sigma.squared)
+    }
+    if(method == 'discrete'){
+    	T <- rMVN(A.tmp.chol, b + Z %*% alpha / sigma.squared)
+    }
     rm(A.tmp.chol)
     rm(b)
     
@@ -143,7 +187,6 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
     ## sample beta_0
     ##
     
-    ## maybe we need to add a regularization... 
     A.tmp <- matrix(0, p, p)
     b <- rep(0, p)
     for(i in 1:t){
@@ -191,9 +234,15 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
     ## sample alpha
     ##
     
-    A.tmp.chol <- chol(tZZ / sigma.squared + Lambda.inv)
-    b <- tZ %*% T / sigma.squared
-    alpha <- rMVN(A.tmp.chol, b)
+    if(method == 'continuous'){
+    	A.tmp.chol <- chol(tZZ[[phi.idx]] / sigma.squared + Lambda.inv[[phi.idx]])
+    	b <- tZ[[phi.idx]] %*% T / sigma.squared
+    }
+    if(method == 'discrete'){
+    	A.tmp.chol <- chol(tZZ / sigma.squared + Lambda.inv)
+    	b <- tZ %*% T / sigma.squared
+    }
+    alpha <- rMVN(A.tmp.chol, b)	
     rm(A.tmp.chol)
     rm(b)
     
@@ -201,9 +250,37 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
     ## sample sigma.squared
     ##
     
-    tmp <- T - Z %*% alpha
+    if(method == 'continuous'){
+    	tmp <- T - Z[[phi.idx]] %*% alpha	
+    }
+    if(method == 'discrete'){
+    	tmp <- T - Z %*% alpha	
+    }
+    
     sigma.squared <- 1 / rgamma(1, t / 2, t(tmp) %*% tmp / 2)
     rm(tmp)
+    
+    ##
+    ## sample phi^2 for continuous time model
+    ##
+    
+    if(method == 'continuous'){
+    	phi.idx.star <- phi.idx + sample(
+    		( - phi.tune:phi.tune)[ - (phi.tune + 1)], 1)
+    	if(phi.idx.star >= 1 && phi.idx.star <= N.phi){
+    		tmp.star <- T - Z[[phi.idx.star]] %*% alpha
+    		mh1 <- - 1 / (2 * sigma.squared) * t(tmp.star) %*% tmp.star - 1 / 2 * t(alpha) %*% Lambda.inv[[phi.idx.star]] %*% alpha
+    		rm(tmp.star)
+    		tmp <- T - Z[[phi.idx]] %*% alpha
+    		mh2 <- - 1 / (2 * sigma.squared) * t(tmp) %*% tmp - 1 / 2 * t(alpha) %*% Lambda.inv[[phi.idx]] %*% alpha
+    		rm(tmp)
+    		mh <- exp(mh1 - mh2)
+    		if(mh > runif(1)){
+    			phi.idx <- phi.idx.star
+    			phi.accept <- phi.accept + 1 / n.mcmc
+    		}
+    	}
+    }   
     
     ##
     ## save variables
@@ -216,7 +293,16 @@ mcmc <- function(WI, WP, HI, HP, params, method = 'continuous'){
     beta.1.save[, l] <- beta.1
     sigma.squared.save[l] <- sigma.squared
     alpha.save[, l] <- alpha
-    trend.save[, l] <- Z %*% alpha
-  }    
-  list(T.save = T.save, tau.squared.I.save = tau.squared.I.save, tau.squared.P.save = tau.squared.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, alpha.save = alpha.save, trend.save = trend.save)
+    if(method == 'continuous'){
+	    trend.save[, l] <- Z[[phi.idx]] %*% alpha
+    }
+    if(method == 'discrete'){
+    	trend.save[, l]<- Z %*% alpha
+    }
+    if(method == 'continuous'){
+    	phi.idx.save[l] <- phi.idx
+    }
+  }
+	list(T.save = T.save, tau.squared.I.save = tau.squared.I.save, tau.squared.P.save = tau.squared.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, alpha.save = alpha.save, trend.save = trend.save, phi.accept = phi.accept, phi.idx.save = phi.idx.save)
+#   list(T.save = T.save, tau.squared.I.save = tau.squared.I.save, tau.squared.P.save = tau.squared.P.save, beta.0.save = beta.0.save, beta.1.save = beta.1.save, sigma.squared.save = sigma.squared.save, alpha.save = alpha.save, trend.save = trend.save)
 }
