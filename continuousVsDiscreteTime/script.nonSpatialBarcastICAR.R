@@ -15,6 +15,7 @@ library(MASS)
 suppressMessages(library(MCMCpack))
 source('~/barcast/functions/rMVN.R')
 source('~/barcast/continuousVsDiscreteTime/mcmc.nonSpatialBarcastICAR.R')
+source('~/barcast/plots/make.output.plot.CVsD.R')
 
 ##
 ## load data
@@ -44,11 +45,26 @@ HP[WP != 0] <- 1
 ## setup priors
 ##
 
-n.mcmc <- 25000
+n.mcmc <- 100000
 n.burn <- floor(n.mcmc / 5)
 
-phi.squared.lower <- 1
-phi.squared.upper <- 100
+## prior for tau$2_P
+alpha.P <- 3
+beta.P <- 10
+curve(dinvgamma(x, alpha.P, beta.P), 0, 10)
+
+## prior for tau^2_I
+alpha.I <- 10
+beta.I <- 2
+curve(dinvgamma(x, alpha.I, beta.I), 0, 10)
+
+## prior for sigma^2
+alpha.sigma <- 3
+beta.sigma <- 10
+curve(dinvgamma(x, alpha.sigma, beta.sigma), 0, 10)
+
+phi.squared.lower <- 30
+phi.squared.upper <- 50
 N.phi <- 100
 phi.tune <- 1 # potential number of steps to take for proposal of discrete uniform
 delta.0 <- rep(1, p)
@@ -56,39 +72,33 @@ delta.1 <- rep(1, p)
 num.neighbors <- 10
 num.truncate <- 100
 
-params <- list(n.mcmc = n.mcmc, phi.squared.lower = phi.squared.lower, phi.squared.upper = phi.squared.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate)
+params <- list(n.mcmc = n.mcmc, phi.squared.lower = phi.squared.lower, phi.squared.upper = phi.squared.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate, alpha.P = alpha.P, beta.P = beta.P, alpha.I = alpha.I, beta.I = beta.I, alpha.sigma = alpha.sigma, beta.sigma = beta.sigma)
 
 ##
 ## fit MCMC
 ##
 
-start <- Sys.time()
-# Rprof(filename = '~/barcast/nonSpatialBarcastWishartTakeTwo/Rprof.out', line.profiling = TRUE)
+for(i in c('continuous', 'discrete')){
+  method = i
+  out <- mcmc(WI, WP, HI, HP, params, method)
+  if(method == 'continuous'){
+    file = '~/barcast/plots/ContinuousFitJune19.jpeg'
+    dat <- '~/barcast/data/ContinuousData.RData'
+  } else{
+    file = '~/barcast/plots/DiscreteFitJune19.jpeg'
+    dat <- '~/barcast/data/DiscreteData.RData'
+  }
+  make.output.plot(out, method, file = file)
+  save(out, file = dat)
+}
+
+
+
+# start <- Sys.time()
 # out <- mcmc(WI, WP, HI, HP, params, method = 'discrete')
-out <- mcmc(WI, WP, HI, HP, params, method = 'continuous')
-# Rprof(NULL)
-# summaryRprof('~/barcast/nonSpatialBarcastWishartTakeTwo/Rprof.out', lines = "show")
-finish <- Sys.time() - start
-finish 
+# out <- mcmc(WI, WP, HI, HP, params, method = 'continuous')
+# finish <- Sys.time() - start
+# finish 
 
-# jpeg(file = '~/barcast/plots/DiscreteTimeJune18.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')
-layout(matrix(1:9, 3, 3))
-matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('blue', alpha.f = 0.5))
-lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
-lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
-
-matplot(WI[t.o], type = 'l', col = adjustcolor('blue', alpha.f = 0.5))
-matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.o], type = 'l', add = TRUE)
-lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025)[t.o], col = adjustcolor('red', alpha.f = 0.25))
-lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975)[t.o], col = adjustcolor('red', alpha.f = 0.25))
-
-matplot(out$sigma.squared.save[n.burn:n.mcmc], type = 'l', main = paste('sigma.squared = ', round(mean(out$sigma.squared.save[n.burn:n.mcmc]), digits = 4)))
-matplot(out$tau.squared.I.save[n.burn:n.mcmc], type = 'l', main = paste('tau.squared.I = ', round(mean(out$tau.squared.I.save[n.burn:n.mcmc]), digits = 4)))
-matplot(out$tau.squared.P.save[n.burn:n.mcmc], type = 'l', main = paste('tau.squared.P = ', round(mean(out$tau.squared.P.save[n.burn:n.mcmc]), digits = 4)))
-
-matplot(apply(out$trend.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('red', alpha.f = 0.5), ylim = c(-0.5, 0.5))
-lines(apply(out$trend.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025), type = 'l', col = adjustcolor('red', alpha.f = 0.25))
-lines(apply(out$trend.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975), type = 'l', col = adjustcolor('red', alpha.f = 0.25))
-# dev.off()
-matplot(out$phi.idx.save, type = 'l', main = paste('accept', round(out$phi.accept / n.mcmc, digits = 4)))
-
+# make.output.plot(out, method = 'continuous', file = '~/barcast/plots/ContinuousFitJune19.jpeg')
+# make.output.plot(out, method = 'continuous')

@@ -29,7 +29,7 @@
 %
 \end{align*}
 %
-where $\bm{W}_t = \left( \begin{array}{c} \bm{W}_{It} \\ \bm{W}_{Pt} \end{array} \right)$ is a vector of instrumental observations $\bm{W}_{It}$ and proxy observations $\bm{W}_{Pt}$ at time $t$, $T_t$ is a latent climate variable, $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{\beta}_1 \bm{H}_{Pt} \end{array} \right)$, $\bm{B}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{H}_{Pt} \end{array} \right) \left( \begin{array}{c} \bm{0}_{N_I}\\ \bm{\beta}_0 \end{array} \right)$, $\bm{\Sigma}_{It} = \tau_I^2 \bm{I}_{N_{It}}$, $\bm{\Sigma}_{Pt} = \tau_P^2 \bm{I}_{N_{Pt}}$, $N_I$ is the total number of instrumental observations, $N_P$ is the total number of proxy observations, $N_{It}$ is the number of instrumental observations at time $t$, $N_{Pt}$ is the number of proxy observations at time $t$, $\bm{H}_{It}$ and $\bm{H}_{Pt}$ are selection matrices indicating whether the instrumental or proxy variable was measured at time $t$, and $\bm{\beta}_0$ and $\bm{\beta}_1$ are regression coefficients relating the proxy observations and latent field. 
+where $\bm{W}_t = \left( \begin{array}{c} \bm{W}_{It} \\ \bm{W}_{Pt} \end{array} \right)$ is a vector of instrumental observations $\bm{W}_{It}$ and proxy observations $\bm{W}_{Pt}$ at time $t$, $T_t$ is a latent climate variable, $\bm{H}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \beta_1 \bm{H}_{Pt} \end{array} \right)$, $\bm{B}_t = \left( \begin{array}{c} \bm{H}_{It}\\ \bm{H}_{Pt} \end{array} \right) \left( \begin{array}{c} \bm{0}_{N_I}\\ \beta_0 \bm{1}_{N_P} \end{array} \right)$, $\bm{\Sigma}_{It} = \tau_I^2 \bm{I}_{N_{It}}$, $\bm{\Sigma}_{Pt} = \tau_P^2 \bm{I}_{N_{Pt}}$, $N_I$ is the total number of instrumental observations, $N_P$ is the total number of proxy observations, $N_{It}$ is the number of instrumental observations at time $t$, $N_{Pt}$ is the number of proxy observations at time $t$, $\bm{H}_{It}$ and $\bm{H}_{Pt}$ are selection matrices indicating whether the instrumental or proxy variable was measured at time $t$, and $\beta_0$ and $\beta_1$ are regression coefficients relating the proxy observations and latent field. 
 %
 %%
 %% Process Model
@@ -73,15 +73,17 @@ where $\bm{\Lambda}$ is a diagonal matrix of the eigenvalues of $\bm{Q}$.
 %
 \bm{\alpha} | \bm{Q} & \sim \mbox{N}\left(\bm{0}, \bm{\Lambda}, \right)\\
 %
-\left[ \sigma^2 \right] & \propto \frac{1} {\sigma^2} \\
+\sigma^2 & \sim \mbox{IG}\left( \alpha_{\sigma^2}, \beta_{\sigma^2} \right) \\
 %
-\left[ \tau^2_I \right] & \propto \frac{1} {\tau^2_I} \\
+\tau^2_I & \sim \mbox{IG} \left( \alpha_I, \beta_I \right) \\
 %
-\left[ \tau^2_P \right] & \propto \frac{1} {\tau^2_P} \\
+\tau^2_P & \sim \mbox{IG} \left( \alpha_P, \beta_P \right) \\
 %
-\bm{\beta}_0 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_0^{ - 1} \right) \\
+\beta_0 & = 0 \\
+% \bm{\beta}_0 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_0^{ - 1} \right) \\
 %
-\bm{\beta}_1 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_1^{ - 1} \right) \\
+\beta_1 | \tau^2_P & \sim \mbox{N} \left( 0, \frac{\tau^2_P} {\delta} \right) \\
+%\bm{\beta}_1 | \tau^2_P & \sim \mbox{N} \left( \bm{0}, \tau^2_P \bm{\Delta}_1^{ - 1} \right) \\
 %
 \end{align*}
 %
@@ -94,8 +96,8 @@ where $\bm{\Lambda}$ is a diagonal matrix of the eigenvalues of $\bm{Q}$.
 %
 \begin{align*}
 %
-\prod_{t = 1}^T \left[ T_t, \bm{\beta}_0, \bm{\beta}_1, \bm{\alpha}, \tau^2_I, \tau^2_P, \sigma^2 \middle| \bm{W}_t \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\ 
-& \hspace{6mm} \times \left[ \bm{\beta}_0 \middle| \tau^2_P \right] \left[ \bm{\beta}_1 \middle| \tau^2_P \right] \left[ \tau^2_I \right] \left[ \tau^2_P \right] \left[ \bm{\alpha} \middle| \bm{Q} \right] \left[ \sigma^2 \right] 
+\prod_{t = 1}^T \left[ T_t, \beta_0, \beta_1, \bm{\alpha}, \tau^2_I, \tau^2_P, \sigma^2 \middle| \bm{W}_t \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\ 
+& \hspace{6mm} \times \left[ \beta_0 \middle| \tau^2_P \right] \left[ \beta_1 \middle| \tau^2_P \right] \left[ \tau^2_I \right] \left[ \tau^2_P \right] \left[ \bm{\alpha} \middle| \bm{Q} \right] \left[ \sigma^2 \right] 
 %
 \end{align*}
 %
@@ -113,7 +115,7 @@ where $\bm{\Lambda}$ is a diagonal matrix of the eigenvalues of $\bm{Q}$.
 %
 \begin{align*}
 %
-\left[ \bm{T} \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\
+\left[ \bm{T} \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \bm{T} \middle| \bm{\alpha}, \sigma^2 \right] \\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right)  \right) \right\} }\\
 & \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \sigma^2} \left( \bm{T} - \bm{Z} \bm{\alpha} \right)^T \left( \bm{T} - \bm{Z} \bm{\alpha} \right) \right\} }\\
@@ -141,16 +143,16 @@ where $\tilde{\bm{A}} = \mbox{diag} \left( \bm{H}_1^T \bm{\Sigma}_1^{ - 1} \bm{H
 %% Full Conditional for Beta_0
 %%
 %
-\subsection{Full conditional for $\bm{\beta}_0$}
+\subsection{Full conditional for $\beta_0$}
 %
 \begin{align*}
 %
-\left[ \bm{\beta}_0 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{\beta}_0 \middle| \tau^2_P \right]\\
+\left[ \beta_0 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \beta_0 \middle| \tau^2_P \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_0^T \bm{\Delta}_0 \bm{\beta}_0 \right\} } \\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \beta_0^T \bm{\Delta}_0 \beta_0 \right\} } \\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right) \bm{\beta}_0 - 2 \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right) \right) \right] \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \beta_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right) \beta_0 - 2 \beta_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_t \right) \right) \right] \right\} }\\
 %
 \end{align*}
 %
@@ -159,7 +161,7 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
 %
 \bm{A}^{ - 1} & =  \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right)^{ - 1} \\
 %
-\bm{b} & =  \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right). \\
+\bm{b} & =  \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \beta_1 \bm{H}_{Pt} \bm{T}_t \right). \\
 %
 \end{align*}
 %
@@ -167,20 +169,20 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
 %% Full Conditional for Beta_1
 %%
 %
-\subsection{Full conditional for $\bm{\beta}_1$}
+\subsection{Full conditional for $\beta_1$}
 %
 \begin{align*}
 %
-\left[ \bm{\beta}_1 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{\beta}_1 \middle| \tau^2_P \right]\\
+\left[ \beta_1 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \beta_1 \middle| \tau^2_P \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta_1}^T \bm{\Delta}_1 \bm{\beta}_1 \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta_1}^T \bm{\Delta}_1 \beta_1 \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \bm{\beta}_1 \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right) \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \beta_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \beta_1 \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \beta_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{H}_{P t} \beta_0 \right) \right) \right\} }\\
 %
-& \propto \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \bm{\beta}_1 \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \bm{\beta}_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right) \right) \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2 \tau^2_P} \beta_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right) \beta_1 \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \beta_1^T \left( \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \beta_0 \right) \right) \right\} }\\
 %
 %
 \end{align*}
@@ -191,7 +193,7 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with
 %
 \bm{A}^{ - 1} & = \left( \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} T_t \right)^T \left( \bm{H}_{Pt} T_t \right) + \bm{\Delta}_1 \right)^{ - 1}\\
 %
-\bm{b} & = \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \bm{\beta}_0 \right). \\
+\bm{b} & = \frac{1} {\tau^2_P} \sum_{t = 1}^T \left( \bm{H}_{Pt} \bm{T}_t \right)^T \left( \bm{W}_{Pt} - \bm{H}_{P t} \beta_0 \right). \\
 %
 \end{align*}
 %
@@ -203,7 +205,7 @@ which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with
 %
 \begin{align*}
 %
-\left[ \tau^2_I \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_I \right] \\
+\left[ \tau^2_I \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_I \right] \\
 %
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_t \right|^{ - \frac{1} {2}} \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} } \frac{1} {\tau^2_I}\\
 %
@@ -223,16 +225,16 @@ which is IG$\left( \frac{1} {2} \sum_{t = 1}^T N_{It}, \frac{1} {2} \sum_{t = 1}
 %
 \begin{align*}
 %
-\left[ \tau^2_P \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_P \right] \\
+\left[ \tau^2_P \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \beta_0, \beta_1, \tau^2_I, \tau^2_P \right] \left[ \tau^2_P \right] \\
 %
 & \propto \prod_{t = 1}^T \left| \bm{\Sigma}_t \right|^{ - \frac{1} {2}} \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} } \frac{1} {\tau^2_P}\\
 %
 & \propto \left( \tau^2_P \right)^{ - \frac{1} {2} \sum_{t = 1}^T N_{Pt} - 1}\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \bm{\beta}_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \bm{\beta}_0 \right) \right) \right) \right\} }\\
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {\tau^2_P} \left( \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \beta_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \beta_0 \right) \right) \right) \right\} }\\
 %
 \end{align*}
 %
-which is IG$\left( \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \bm{\beta}_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \bm{\beta}_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \bm{\beta}_0 \right) \right) \right)$. \\
+which is IG$\left( \frac{1} {2} \sum_{t = 1}^T N_{Pt}, \frac{1} {2} \sum_{t = 1}^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} T_t + \bm{H}_{P t} \beta_0 \right) \right)^T \left( \bm{W}_{Pt} - \left( \beta_1 \bm{H}_{Pt} T_t + \bm{H}_{Pt} \beta_0 \right) \right) \right)$. \\
 %
 %%
 %% Full Condtional for alpha

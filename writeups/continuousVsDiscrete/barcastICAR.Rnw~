@@ -148,16 +148,16 @@ where $\tilde{\bm{A}} = \mbox{diag} \left( \bm{H}_1^T \bm{\Sigma}_1^{ - 1} \bm{H
 \left[ \bm{\beta}_0 \middle| \cdot \right] & \propto \prod_{t = 1}^T \left[ \bm{W}_t \middle| T_t, \bm{\beta}_0, \bm{\beta}_1, \tau^2_I, \tau^2_P \right] \left[ \bm{\beta}_0 \middle| \tau^2_P \right]\\
 %
 & \propto \prod_{t = 1}^T \exp{ \left\{ - \frac{1} {2} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right)^T \bm{\Sigma}_t^{ - 1} \left( \bm{W}_t - \left( \bm{H}_t T_t + \bm{B}_t \right) \right) \right\} }\\
-& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_0^T \bm{\Delta}_1 \bm{\beta}_0 \right\} }
+& \hspace{6mm} \times \exp{ \left\{ - \frac{1} {2 \tau^2_P} \bm{\beta}_0^T \bm{\Delta}_0 \bm{\beta}_0 \right\} } \\
 %
-& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_1 \right) \bm{\beta}_0 - 2 \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right) \right) \right] \right\} }\\
+& \propto \exp{ \left\{ - \frac{1} {2} \left[ \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right) \bm{\beta}_0 - 2 \bm{\beta}_0^T \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right) \right) \right] \right\} }\\
 %
 \end{align*}
 %
 which is MVN($\bm{A}^{ - 1}\bm{b}, \bm{A}^{ - 1}$) with \\
 \begin{align*}
 %
-\bm{A}^{ - 1} & =  \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_1 \right)^{ - 1} \\
+\bm{A}^{ - 1} & =  \left( \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \bm{H}_{Pt} + \bm{\Delta}_0 \right)^{ - 1} \\
 %
 \bm{b} & =  \sum_{t = 1}^T \bm{H}_{Pt}^T \bm{\Sigma}_{Pt}^{ - 1} \left( \bm{W}_{Pt} - \bm{\beta}_1 \bm{H}_{Pt} \bm{T}_t \right). \\
 %
