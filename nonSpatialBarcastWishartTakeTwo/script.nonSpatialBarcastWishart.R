@@ -13,7 +13,7 @@ library(dplR)
 library(mvtnorm)
 library(MASS)
 suppressMessages(library(MCMCpack))
-source('~/barcast/rMVN.R')
+source('~/barcast/functions/rMVN.R')
 source('~/barcast/plots/make.output.plot.wishart.R')
 source('~/barcast/nonSpatialBarcastWishartTakeTwo/mcmc.nonSpatialBarcast.R')
 
