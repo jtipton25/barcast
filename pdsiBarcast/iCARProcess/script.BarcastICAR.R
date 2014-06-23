@@ -54,7 +54,7 @@ HP[WP != 0] <- 1
 ## setup priors
 ##
 
-n.mcmc <- 5000
+n.mcmc <- 10000
 n.burn <- floor(n.mcmc / 5)
 
 ## prior for tau$2_P
@@ -68,8 +68,8 @@ beta.I <- 2
 curve(dinvgamma(x, alpha.I, beta.I), 0, 10)
 
 ## prior for sigma^2
-alpha.sigma <- 3
-beta.sigma <- 10
+alpha.sigma <- 0.1 #3
+beta.sigma <- 0.1 #1
 curve(dinvgamma(x, alpha.sigma, beta.sigma), 0, 10)
 
 phi.squared.lower <- 30
@@ -94,13 +94,13 @@ finish
 
 jpeg(file = '~/barcast/plots/iCARcomparisonPlot.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')  
 layout(matrix(1:3, nrow = 3, ncol = 1))
-matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[ - 1], type = 'l', main = paste('fitted PDSI, runtime for 5000 iterations = ', round(finish, digits = 2), " minutes", sep = ""), ylab = 'PDSI', ylim = c(-4, 4))
+matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[ - 1], type = 'l', main = paste('fitted PDSI, runtime for 10,000 iterations = ', round(finish, digits = 2), " minutes", sep = ""), ylab = 'PDSI', ylim = c(-4, 4))
 abline(h = 0, col = 'blue')
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, probs = 0.025)[ - 1], col = adjustcolor('red', alpha = 0.25))
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, probs = 0.975)[ - 1], col = adjustcolor('red', alpha = 0.25))
 lines(WI, col = adjustcolor('blue', alpha = 0.5))
-MSPE.val <- (apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val + 1] - WI.t.val)^2
+MSPE.val <- (apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val] - WI.t.val)^2
 matplot(MSPE.val, type = 'l', main = paste('MSPE error over validation', round(mean(MSPE.val), digits = 4)))
 matplot(WI.t.val, type = 'l', col = 'blue', main = 'Plot of fitted vs. held out PDSI')
-lines(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val + 1], col = 'black')
+lines(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val], col = 'black')
 dev.off()

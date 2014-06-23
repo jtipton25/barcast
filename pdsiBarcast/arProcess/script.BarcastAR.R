@@ -75,7 +75,7 @@ sigma.squared.beta.0 <- 8
 mu.beta.1 <- 0
 sigma.squared.beta.1 <- 8
 
-n.mcmc <- 5000
+n.mcmc <- 10000
 n.burn <- floor(n.mcmc / 5)
 
 ##
@@ -92,7 +92,7 @@ finish
 
 # jpeg(file = '~/barcast/plots/ARcomparisonPlot.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')  
 layout(matrix(1:3, nrow = 3, ncol = 1))
-matplot(apply(out$X.save[, n.burn:n.mcmc], 1, mean)[ - 1], type = 'l', main = paste('fitted PDSI, runtime for 5000 iterations = ', round(finish, digits = 2), " minutes", sep = ""), ylab = 'PDSI', ylim = c(-4, 4))
+matplot(apply(out$X.save[, n.burn:n.mcmc], 1, mean)[ - 1], type = 'l', main = paste('fitted PDSI, runtime for 10000 iterations = ', round(finish, digits = 2), " minutes", sep = ""), ylab = 'PDSI', ylim = c(-4, 4))
 abline(h = 0, col = 'blue')
 lines(apply(out$X.save[, n.burn:n.mcmc], 1, quantile, probs = 0.025)[ - 1], col = adjustcolor('red', alpha = 0.25))
 lines(apply(out$X.save[, n.burn:n.mcmc], 1, quantile, probs = 0.975)[ - 1], col = adjustcolor('red', alpha = 0.25))
