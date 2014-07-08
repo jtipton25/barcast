@@ -9,7 +9,12 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   ##
   
   make.tau.squared.P <- function(i, beta.0, beta.1, T){
-    tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i] - beta.0 * HP[i, ])
+    ## only calculate for observed T
+    if(HI[i] == 0){
+      tmp <- 0
+    } else {
+      tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i] - beta.0 * HP[i, ])
+    }
     return(t(tmp) %*% tmp)
   }
   
@@ -131,7 +136,8 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
       #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0)
     }
     A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
-    T <- rMVN(A.tmp.chol, b + Z[[phi.idx]] %*% alpha / sigma.squared)
+    T <- rMVN(A.tmp.chol, (b + Z[[phi.idx]] %*% alpha / sigma.squared))
+    rm(A.tmp.vec)
     rm(A.tmp.chol)
     rm(b)
     
@@ -139,20 +145,20 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     ## sample beta_0
     ##
     
-    A.tmp <- 0
-    b <- 0
-    #         A.tmp <- matrix(0, p, p)
-    #         b <- rep(0, p)
-    for(i in 1:t){
-      if(HI[i] == 1){ ## only sample for observed data???
-        A.tmp <- A.tmp + HP[i, ] %*% HP[i, ]
-        #             A.tmp <- A.tmp + HP[i, ] %*% t(HP[i, ])
-        b <- b + HP[i, ] %*% (WP[i, ] - beta.1 * HP[i, ] * T[i])
-      }
-    }
-    beta.0 <- rMVN(chol(1 / tau.squared.P *(A.tmp + Delta.0[1])), b / tau.squared.P)
-    rm(A.tmp)    
-    rm(b)
+#     A.tmp <- 0
+#     b <- 0
+#     #         A.tmp <- matrix(0, p, p)
+#     #         b <- rep(0, p)
+#     for(i in 1:t){
+#       if(HI[i] == 1){ ## only sample for observed data???
+#         A.tmp <- A.tmp + HP[i, ] %*% HP[i, ]
+#         #             A.tmp <- A.tmp + HP[i, ] %*% t(HP[i, ])
+#         b <- b + HP[i, ] %*% (WP[i, ] - beta.1 * HP[i, ] * T[i])
+#       }
+#     }
+#     beta.0 <- rMVN(chol(1 / tau.squared.P *(A.tmp + Delta.0[1])), b / tau.squared.P)
+#     rm(A.tmp)    
+#     rm(b)
     
     ##
     ## sample beta_1

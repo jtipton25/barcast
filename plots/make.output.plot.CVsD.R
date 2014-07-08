@@ -4,12 +4,12 @@ make.output.plot <- function(out, file = NULL, method){
   }
   
   layout(matrix(1:9, 3, 3))
-  matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('blue', alpha.f = 0.5))
+  matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('blue', alpha.f = 0.5), main = 'Reconstruction of PDSI')
   lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
   lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
   abline(h = 0)
   
-  matplot(WI[t.o], type = 'l', col = adjustcolor('blue', alpha.f = 0.5))
+  matplot(WI[t.o], type = 'l', col = adjustcolor('blue', alpha.f = 0.5), main = 'Calibration Interval')
   matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.o], type = 'l', add = TRUE)
   lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025)[t.o], col = adjustcolor('red', alpha.f = 0.25))
   lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975)[t.o], col = adjustcolor('red', alpha.f = 0.25))
