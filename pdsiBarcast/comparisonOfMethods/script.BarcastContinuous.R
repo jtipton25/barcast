@@ -41,7 +41,7 @@ HP[WP != 0] <- 1
 ## setup priors
 ##
 
-n.mcmc <- 25000
+n.mcmc <- 5000#25000
 n.burn <- floor(n.mcmc / 5)
 
 ## prior for tau$2_P
@@ -50,7 +50,7 @@ beta.P <- 3
 curve(dinvgamma(x, alpha.P, beta.P), 0, 10)
 
 ## prior for tau^2_I
-alpha.I <- 10
+alpha.I <- 100
 beta.I <- 1
 curve(dinvgamma(x, alpha.I, beta.I), 0, 10)
 
@@ -80,7 +80,8 @@ make.output.plot(out, method = 'continuous')
 
 # jpeg(file = '~/barcast/plots/hudsonValleyPDSIcontinuous.jpeg', width = 9, height = 6, quality = 100, res  = 600, units = 'in')  
 layout(matrix(1:2, nrow = 2))
-matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('blue', alpha.f = 0.5), main = 'Reconstruction of PDSI', ylab = 'PDSI', xlab = 'Year')
+matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean), type = 'l', col = adjustcolor('black', alpha.f = 0.5), main = 'Reconstruction of PDSI', ylab = 'PDSI', xlab = 'Year')
+lines(WI, , col = adjustcolor('blue', alpha.f = 0.5))
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
 abline(h = 0)
