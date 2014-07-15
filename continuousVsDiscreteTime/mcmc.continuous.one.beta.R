@@ -10,11 +10,11 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   
   make.tau.squared.P <- function(i, beta.0, beta.1, T){
     ## only calculate for observed T
-    if(HI[i] == 0){
-      tmp <- 0
-    } else {
+#     if(HI[i] == 0){
+#       tmp <- 0
+#     } else {
       tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i] - beta.0 * HP[i, ])
-    }
+#     }
     return(t(tmp) %*% tmp)
   }
   
@@ -32,11 +32,11 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   beta.P <- params$beta.P
   alpha.sigma <- params$alpha.sigma
   beta.sigma <- params$beta.sigma
-  phi.squared.lower <- params$phi.squared.lower
-  phi.squared.upper <- params$phi.squared.upper
+  phi.lower <- params$phi.lower
+  phi.upper <- params$phi.upper
   N.phi <- params$N.phi
   phi.tune <- params$phi.tune
-  phi.squared.prior <- seq(phi.squared.lower, phi.squared.upper, length = N.phi)
+  phi.prior <- seq(phi.lower, phi.upper, length = N.phi)
   
   t <- length(WI)
   tHP <- t(HP)
@@ -62,19 +62,22 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   D <- as.matrix(dist(1:t))
   Z <- vector('list', length = N.phi)
   tZ <- vector('list', length = N.phi)
-  tZZ <- vector('list', length = N.phi)
   Lambda <- vector('list', length = N.phi)
   Lambda.inv <- vector('list', length = N.phi)
   for(i in 1:N.phi){
-    Q <- exp( - D^2 / phi.squared.prior[i]) ## gaussian covariance matrix
+    Q <- exp( - D / phi.prior[i]) ## gaussian covariance matrix
     pc <- prcomp(Q)
-    Z[[i]] <- pc$rotation[, 1:num.truncate]
+#     Z[[i]] <- pc$rotation[, 1:num.truncate]
+		Z[[i]] <- pc$rotation
     tZ[[i]] <- t(Z[[i]])
-    tZZ[[i]] <- tZ[[i]] %*% Z[[i]]
-    Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
-    Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
+#     Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
+#     Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
+    Lambda[[i]] <- diag(pc$sdev^2)
+    Lambda.inv[[i]] <- diag(1 / pc$sdev^2)
   }
   
+  I.t <- diag(rep(1, t))
+  I.trunc <- diag(rep(1, num.truncate))
   phi.idx <- sample(1:N.phi, 1)
   
   ## initialize latent field
@@ -83,19 +86,24 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   T[HI == 1] <- WI[HI == 1]  ## initialize the latent field with the observed measurements
   
   ## initialize variance values 
-  tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
-  tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
+#   tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
+tau.squared.I <- 0.1
+#   tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
+tau.squared.P <- 1.25
   Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
   tmp <- T - Z[[phi.idx]] %*% alpha	
-  sigma.squared <- 1 / rgamma(1, alpha.sigma + t / 2, beta.sigma + t(tmp) %*% tmp / 2)
+#   sigma.squared <- 1 / rgamma(1, alpha.sigma + t / 2, beta.sigma + t(tmp) %*% tmp / 2)
+sigma.squared <- 0.5
   rm(tmp)
   
   ## initialize regression parameters
   #   beta.0 <- rMVN(chol(tau.squared.P * solve(Delta.0)), rep(0, p))
   beta.0 <- 0
   #   beta.1 <- rMVN(chol(tau.squared.P * solve(Delta.1)), rep(0, p))
-  beta.1 <- rMVN(chol(tau.squared.P * 1 / Delta.1[1]), 0)
-  J <- rep(1, p)
+  beta.1 <- rMVN(chol(tau.squared.P * 1 / Delta.1), 0)
+	J <- rep(1, p)
+	beta.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+  
   
   ##
   ## set up save variables
@@ -127,19 +135,26 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     ## sample latent field T
     ##
     
-    b <- rep(0, t)
-    A.tmp.vec <- rep(0, t)
-    for(i in 1:t){
-      A.tmp.vec[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1 * J))
-      b[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0 * J))
+    
+    
+#     b <- rep(0, t)
+#     A.tmp.vec <- rep(0, t)
+#     for(i in 1:t){
+#       A.tmp.vec[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1 * J))
+#       b[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0 * J))
       #       A.tmp.vec[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1))
       #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0)
-    }
-    A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
-    T <- rMVN(A.tmp.chol, (b + Z[[phi.idx]] %*% alpha / sigma.squared))
-    rm(A.tmp.vec)
-    rm(A.tmp.chol)
-    rm(b)
+#     }
+#     A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
+#     test <- 
+#     chol((rowSums((H * beta.mat) %*% Sigma.inv * (H * beta.mat)) + 1 / sigma.squared) * I.t)
+#     A.tmp.vec
+
+    T <- rMVN(chol((rowSums((H * beta.mat) %*% Sigma.inv * (H * beta.mat)) + 1 / sigma.squared) * I.t), (rowSums((H * beta.mat) %*% Sigma.inv * (W)) + Z[[phi.idx]] %*% alpha / sigma.squared))
+    T.mat <- matrix(T, nrow = t, ncol = p, byrow = FALSE)
+#     rm(A.tmp.vec)
+#     rm(A.tmp.chol)
+#     rm(b)
     
     ##
     ## sample beta_0
@@ -164,21 +179,27 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     ## sample beta_1
     ##
     
-    A.tmp <- 0
-    b <- 0
-    #     A.tmp <- matrix(0, p, p)
-    #     b <- rep(0, p)
-    for(i in 1:t){ 
-      if(HI[i] == 1){ ## only sample for observed data???
-        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% HP[i, ]
-        #        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% t(HP[i, ])
-        b <- b + T[i] * HP[i, ] %*% (WP[i, ] - beta.0 * HP[i, ])
-      }
-    }
-    beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
+#     A.tmp <- 0
+#     b <- 0
+#     #     A.tmp <- matrix(0, p, p)
+#     #     b <- rep(0, p)
+#     for(i in 1:t){ 
+#       if(HI[i] == 1){ ## only sample for observed data???
+#         A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% HP[i, ]
+#         #        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% t(HP[i, ])
+#         b <- b + T[i] * HP[i, ] %*% (WP[i, ] - beta.0 * HP[i, ])
+#       }
+#     }
+
+# 		sum(NP.t[t.o] * T[t.o]^2)
+# 		sum(NP * T^2)
+#     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
     #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1)), b / tau.squared.P)
-    rm(A.tmp)
-    rm(b)
+# 		beta.1 <- rMVN(chol((sum(NP.t[t.o] * T[t.o]^2) + Delta.1) / tau.squared.P), sum(apply((T.mat * HP) * (WP), 1, sum)[t.o]) / tau.squared.P)
+		beta.1 <- rMVN(chol((sum(NP.t * T^2) + Delta.1) / tau.squared.P), sum((T.mat * HP) * (WP)) / tau.squared.P)	 
+#     rm(A.tmp)
+#     rm(b)
+		beta.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
     
     ##
     ## sample tau.squared.I
@@ -197,9 +218,10 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     ## sample alpha
     ##
     
-    A.tmp.chol <- chol(tZZ[[phi.idx]] / sigma.squared + Lambda.inv[[phi.idx]])
+    A.tmp.chol <- chol(I.trunc / sigma.squared + Lambda.inv[[phi.idx]])
     b <- tZ[[phi.idx]] %*% T / sigma.squared
-    alpha <- rMVN(A.tmp.chol, b)	
+    alpha <- rMVN(A.tmp.chol, b)
+		talpha <- t(alpha)
     rm(A.tmp.chol)
     rm(b)
     
@@ -212,23 +234,24 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     rm(tmp)
     
     ##
-    ## sample phi^2 for continuous time model
+    ## sample phi for continuous time model
     ##
     
-    phi.idx.star <- phi.idx + sample(( - phi.tune:phi.tune)[ - (phi.tune + 1)], 1)
-    if(phi.idx.star >= 1 && phi.idx.star <= N.phi){
-      tmp.star <- T - Z[[phi.idx.star]] %*% alpha
-      mh1 <- - 1 / (2 * sigma.squared) * t(tmp.star) %*% tmp.star - 1 / 2 * t(alpha) %*% Lambda.inv[[phi.idx.star]] %*% alpha
-      rm(tmp.star)
-      tmp <- T - Z[[phi.idx]] %*% alpha
-      mh2 <- - 1 / (2 * sigma.squared) * t(tmp) %*% tmp - 1 / 2 * t(alpha) %*% Lambda.inv[[phi.idx]] %*% alpha
-      rm(tmp)
+		phi.idx.star <- phi.idx + sample( (- phi.tune:phi.tune)[ - (phi.tune + 1)], 1)
+		if(phi.idx.star > N.phi){
+			phi.idx.star <- N.phi
+		}
+		if(phi.idx.star < 1){
+			phi.idx.star <- 1
+		}
+      mh1 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx.star]] %*% alpha + talpha %*% alpha) - 1 / 2 * talpha %*% Lambda.inv[[phi.idx.star]] %*% alpha
+ 			mh2 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx]] %*% alpha + talpha %*% alpha) - 1 / 2 * talpha %*% Lambda.inv[[phi.idx]] %*% alpha
+#       rm(tmp)
       mh <- exp(mh1 - mh2)
       if(mh > runif(1)){
         phi.idx <- phi.idx.star
         phi.accept <- phi.accept + 1 / n.mcmc
       }
-    }
     
     ##
     ## save variables
