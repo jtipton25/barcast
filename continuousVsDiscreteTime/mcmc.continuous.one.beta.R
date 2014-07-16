@@ -65,15 +65,15 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   Lambda <- vector('list', length = N.phi)
   Lambda.inv <- vector('list', length = N.phi)
   for(i in 1:N.phi){
-    Q <- exp( - D / phi.prior[i]) ## gaussian covariance matrix
+    Q <- exp( - D / phi.prior[i]) ## exponential covariance matrix
     pc <- prcomp(Q)
-#     Z[[i]] <- pc$rotation[, 1:num.truncate]
-		Z[[i]] <- pc$rotation
+    Z[[i]] <- pc$rotation[, 1:num.truncate]
+# 		Z[[i]] <- pc$rotation
     tZ[[i]] <- t(Z[[i]])
-#     Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
-#     Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
-    Lambda[[i]] <- diag(pc$sdev^2)
-    Lambda.inv[[i]] <- diag(1 / pc$sdev^2)
+    Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
+    Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
+#     Lambda[[i]] <- diag(pc$sdev^2)
+#     Lambda.inv[[i]] <- diag(1 / pc$sdev^2)
   }
   
   I.t <- diag(rep(1, t))
@@ -86,14 +86,11 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   T[HI == 1] <- WI[HI == 1]  ## initialize the latent field with the observed measurements
   
   ## initialize variance values 
-#   tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
-tau.squared.I <- 0.1
-#   tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
-tau.squared.P <- 1.25
+  tau.squared.I <- 1 / rgamma(1, alpha.I, beta.I)
+  tau.squared.P <- 1 / rgamma(1, alpha.P, beta.P)
   Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
   tmp <- T - Z[[phi.idx]] %*% alpha	
-#   sigma.squared <- 1 / rgamma(1, alpha.sigma + t / 2, beta.sigma + t(tmp) %*% tmp / 2)
-sigma.squared <- 0.5
+  sigma.squared <- 1 / rgamma(1, alpha.sigma + t / 2, beta.sigma + t(tmp) %*% tmp / 2)
   rm(tmp)
   
   ## initialize regression parameters
@@ -102,8 +99,8 @@ sigma.squared <- 0.5
   #   beta.1 <- rMVN(chol(tau.squared.P * solve(Delta.1)), rep(0, p))
   beta.1 <- rMVN(chol(tau.squared.P * 1 / Delta.1), 0)
 	J <- rep(1, p)
-	beta.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
-  
+	beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+	beta.0.mat <- matrix(c(0, beta.0 * J), nrow = t, ncol = p + 1, byrow = TRUE)
   
   ##
   ## set up save variables
@@ -143,14 +140,14 @@ sigma.squared <- 0.5
 #       A.tmp.vec[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1 * J))
 #       b[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0 * J))
       #       A.tmp.vec[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1))
-      #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0)
+      #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0))
 #     }
 #     A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
 #     test <- 
-#     chol((rowSums((H * beta.mat) %*% Sigma.inv * (H * beta.mat)) + 1 / sigma.squared) * I.t)
+#     chol((rowSums((H * beta.1.mat) %*% Sigma.inv * (H * beta.1.mat)) + 1 / sigma.squared) * I.t)
 #     A.tmp.vec
 
-    T <- rMVN(chol((rowSums((H * beta.mat) %*% Sigma.inv * (H * beta.mat)) + 1 / sigma.squared) * I.t), (rowSums((H * beta.mat) %*% Sigma.inv * (W)) + Z[[phi.idx]] %*% alpha / sigma.squared))
+    T <- rMVN(chol((rowSums((H * beta.1.mat) %*% Sigma.inv * (H * beta.1.mat)) + 1 / sigma.squared) * I.t), (rowSums((H * beta.1.mat) %*% Sigma.inv * (W - H * beta.0.mat)) + Z[[phi.idx]] %*% alpha / sigma.squared))
     T.mat <- matrix(T, nrow = t, ncol = p, byrow = FALSE)
 #     rm(A.tmp.vec)
 #     rm(A.tmp.chol)
@@ -172,6 +169,7 @@ sigma.squared <- 0.5
 #       }
 #     }
 #     beta.0 <- rMVN(chol(1 / tau.squared.P *(A.tmp + Delta.0[1])), b / tau.squared.P)
+# 		beta.0.mat <- matrix(c(0, beta.0 * J), nrow = t, ncol = p + 1, byrow = TRUE)
 #     rm(A.tmp)    
 #     rm(b)
     
@@ -196,10 +194,10 @@ sigma.squared <- 0.5
 #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
     #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1)), b / tau.squared.P)
 # 		beta.1 <- rMVN(chol((sum(NP.t[t.o] * T[t.o]^2) + Delta.1) / tau.squared.P), sum(apply((T.mat * HP) * (WP), 1, sum)[t.o]) / tau.squared.P)
-		beta.1 <- rMVN(chol((sum(NP.t * T^2) + Delta.1) / tau.squared.P), sum((T.mat * HP) * (WP)) / tau.squared.P)	 
+		beta.1 <- rMVN(chol((sum(NP.t * T^2) + Delta.1) / tau.squared.P), sum((T.mat * HP) * (WP - HP * beta.0.mat[, - 1])) / tau.squared.P)	 
 #     rm(A.tmp)
 #     rm(b)
-		beta.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+		beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
     
     ##
     ## sample tau.squared.I
@@ -218,12 +216,12 @@ sigma.squared <- 0.5
     ## sample alpha
     ##
     
-    A.tmp.chol <- chol(I.trunc / sigma.squared + Lambda.inv[[phi.idx]])
-    b <- tZ[[phi.idx]] %*% T / sigma.squared
-    alpha <- rMVN(A.tmp.chol, b)
+#     A.tmp.chol <- chol(I.trunc / sigma.squared + Lambda.inv[[phi.idx]])
+#     b <- tZ[[phi.idx]] %*% T / sigma.squared
+    alpha <- rMVN(chol(I.trunc / sigma.squared + Lambda.inv[[phi.idx]]), tZ[[phi.idx]] %*% T / sigma.squared)
 		talpha <- t(alpha)
-    rm(A.tmp.chol)
-    rm(b)
+#     rm(A.tmp.chol)
+#     rm(b)
     
     ##
     ## sample sigma.squared

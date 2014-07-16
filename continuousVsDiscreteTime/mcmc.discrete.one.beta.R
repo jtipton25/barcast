@@ -74,7 +74,10 @@ mcmc.disc <- function(WI, WP, HI, HP, params){
   Lambda <- diag((pc$sdev^2)[1:num.truncate])
   Lambda.inv <- diag(1 / (pc$sdev^2)[1:num.truncate])
   
+  I.t <- diag(rep(1, t))
+  I.trunc <- diag(rep(1, num.truncate))
   ## Initial latent field
+  
   alpha <- rMVN(chol(Lambda.inv), rep(0, num.truncate))
   T <- Z %*% alpha
   T[HI == 1] <- WI[HI == 1]  ## initialize the latent field with the observed measurements
@@ -94,6 +97,8 @@ mcmc.disc <- function(WI, WP, HI, HP, params){
   beta.1 <- rMVN(chol(tau.squared.P * 1 / Delta.1[1]), 0)
   J <- rep(1, p)
   #   beta.1 <- rMVN(chol(tau.squared.P * solve(Delta.1)), rep(0, p))
+  beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+  beta.0.mat <- matrix(c(0, beta.0 * J), nrow = t, ncol = p + 1, byrow = TRUE)
   
   ##
   ## set up save variables
@@ -123,58 +128,64 @@ mcmc.disc <- function(WI, WP, HI, HP, params){
     ## sample latent field T
     ##
     
-    b <- rep(0, t)
-    A.tmp.vec <- rep(0, t)
-    for(i in 1:t){
-      A.tmp.vec[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1 * J))
-      b[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0 * J))
-      #     	A.tmp.vec[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1))
-      #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0))
-    }
-    A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
-    T <- rMVN(A.tmp.chol, b + Z %*% alpha / sigma.squared)
-    rm(A.tmp.chol)
-    rm(b)
+#     b <- rep(0, t)
+#     A.tmp.vec <- rep(0, t)
+#     for(i in 1:t){
+#       A.tmp.vec[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1 * J))
+#       b[i] <- (H[i, ] * c(1, beta.1 * J)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0 * J))
+#       #     	A.tmp.vec[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (H[i, ] * c(1, beta.1))
+#       #       b[i] <- (H[i, ] * c(1, beta.1)) %*% Sigma.inv %*% (W[i, ] - H[i, ] * c(0, beta.0))
+#     }
+#     A.tmp.chol <- chol(diag(A.tmp.vec + 1 / sigma.squared))
+#     T <- rMVN(A.tmp.chol, b + Z %*% alpha / sigma.squared)
+    T <- rMVN(chol((rowSums((H * beta.1.mat) %*% Sigma.inv * (H * beta.1.mat)) + 1 / sigma.squared) * I.t), (rowSums((H * beta.1.mat) %*% Sigma.inv * (W - beta.0.mat)) + Z %*% alpha / sigma.squared))
+    T.mat <- matrix(T, nrow = t, ncol = p, byrow = FALSE)
+                
+#     rm(A.tmp.chol)
+#     rm(b)
     
     ##
     ## sample beta_0
     ##
-    
-    A.tmp <- 0
-    b <- 0
-    #     A.tmp <- matrix(0, p, p)
-    #     b <- rep(0, p)
-    for(i in 1:t){
-      if(HI[i] == 1){
-        A.tmp <- A.tmp + HP[i, ] %*% HP[i, ]
-        #         A.tmp <- A.tmp + HP[i, ] %*% t(HP[i, ])
-        b <- b + HP[i, ] %*% (WP[i, ] - beta.1 * HP[i, ] * T[i])
-      }
-    }
-    beta.0 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.0[1])), b / tau.squared.P)
-    #     beta.0 <- rMVN(chol(1 / tau.squared.P * A.tmp + Delta.0), b / tau.squared.P)
-    rm(A.tmp)    
-    rm(b)
+#     
+#     A.tmp <- 0
+#     b <- 0
+#     #     A.tmp <- matrix(0, p, p)
+#     #     b <- rep(0, p)
+#     for(i in 1:t){
+#       if(HI[i] == 1){
+#         A.tmp <- A.tmp + HP[i, ] %*% HP[i, ]
+#         #         A.tmp <- A.tmp + HP[i, ] %*% t(HP[i, ])
+#         b <- b + HP[i, ] %*% (WP[i, ] - beta.1 * HP[i, ] * T[i])
+#       }
+#     }
+#     beta.0 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.0[1])), b / tau.squared.P)
+#     #     beta.0 <- rMVN(chol(1 / tau.squared.P * A.tmp + Delta.0), b / tau.squared.P)
+#     beta.0.mat <- matrix(c(0, beta.0 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+#     rm(A.tmp)    
+#     rm(b)
     
     ##
     ## sample beta_1
     ##
-    
-    A.tmp <- 0
-    b <- 0
-    #     A.tmp <- matrix(0, p, p)
-    #     b <- rep(0, p)
-    for(i in 1:t){ 
-      if(HI[i] == 1){ ## only sample for observed data???
-        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% HP[i, ]
-        #        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% t(HP[i, ])
-        b <- b + T[i] * HP[i, ] %*% (WP[i, ] - beta.0 * HP[i, ])
-      }
-    }
-    beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
+#     
+#     A.tmp <- 0
+#     b <- 0
+#     #     A.tmp <- matrix(0, p, p)
+#     #     b <- rep(0, p)
+#     for(i in 1:t){ 
+#       if(HI[i] == 1){ ## only sample for observed data???
+#         A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% HP[i, ]
+#         #        A.tmp <- A.tmp + T[i]^2 * HP[i, ] %*% t(HP[i, ])
+#         b <- b + T[i] * HP[i, ] %*% (WP[i, ] - beta.0 * HP[i, ])
+#       }
+#     }
+#     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
     #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1)), b / tau.squared.P)
-    rm(A.tmp)
-    rm(b)    
+    beta.1 <- rMVN(chol((sum(NP.t * T^2) + Delta.1) / tau.squared.P), sum((T.mat * HP) * (WP - HP * beta.0.mat[, - 1])) / tau.squared.P)
+    beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
+#     rm(A.tmp)
+#     rm(b)    
     
     ##
     ## sample tau.squared.I
@@ -186,19 +197,15 @@ mcmc.disc <- function(WI, WP, HI, HP, params){
     ## sample tau.squared.P
     ##
     
-    tau.squared.P <- 1 / rgamma(1, alpha.P + NP / 2, beta.P + sum(sapply(1:t, make.tau.squared.P, beta.0 = beta.0, beta.1 = beta.1, T = T)) / 2)
+    tau.squared.P <- 1 / rgamma(1, alpha.P + NP / 2, beta.P + sum((WP - beta.1.mat[, - 1] * HP * T.mat - beta.0.mat[, - 1] * HP) * (WP - beta.1.mat[, - 1] * HP * T.mat - beta.0.mat[, - 1] * HP)) / 2)
     Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
     
     ##
     ## sample alpha
     ##
     
-    A.tmp.chol <- chol(tZZ / sigma.squared + Lambda.inv)
-    b <- tZ %*% T / sigma.squared
-    alpha <- rMVN(A.tmp.chol, b)	
-    rm(A.tmp.chol)
-    rm(b)
-    
+    alpha <- rMVN(chol(I.trunc / sigma.squared + Lambda.inv), tZ %*% T / sigma.squared)	
+        
     ##
     ## sample sigma.squared
     ##
