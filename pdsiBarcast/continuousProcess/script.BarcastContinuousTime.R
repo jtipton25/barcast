@@ -14,7 +14,7 @@ library(mvtnorm)
 library(MASS)
 suppressMessages(library(MCMCpack))
 source('~/barcast/functions/rMVN.R')
-source('~/barcast/continuousVsDiscreteTime/mcmc.nonSpatialBarcastICAR.R')
+source('~/barcast/continuousVsDiscreteTime/mcmc.continuous.one.beta.R')
 source('~/barcast/plots/make.output.plot.CVsD.R')
 
 ##
@@ -54,47 +54,52 @@ HP[WP != 0] <- 1
 ## setup priors
 ##
 
-n.mcmc <- 10000
-n.burn <- floor(n.mcmc / 5)
 
 ## prior for tau$2_P
-alpha.P <- 3
-beta.P <- 10
+alpha.P <- 0.1 #3
+beta.P <- 0.1 #10
 curve(dinvgamma(x, alpha.P, beta.P), 0, 10)
 
 ## prior for tau^2_I
-alpha.I <- 10
-beta.I <- 2
+alpha.I <- 0.1 #200
+beta.I <- 0.1 #2
 curve(dinvgamma(x, alpha.I, beta.I), 0, 10)
 
 ## prior for sigma^2
-alpha.sigma <- 3
-beta.sigma <- 10
+alpha.sigma <- 0.1
+beta.sigma <- 0.1
 curve(dinvgamma(x, alpha.sigma, beta.sigma), 0, 10)
 
-phi.squared.lower <- 30
-phi.squared.upper <- 50
-N.phi <- 100
-phi.tune <- 1 # potential number of steps to take for proposal of discrete uniform
-delta.0 <- rep(1, p)
-delta.1 <- rep(1, p)
-num.neighbors <- 10
-num.truncate <- 100
 
-params <- list(n.mcmc = n.mcmc, phi.squared.lower = phi.squared.lower, phi.squared.upper = phi.squared.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate, alpha.P = alpha.P, beta.P = beta.P, alpha.I = alpha.I, beta.I = beta.I, alpha.sigma = alpha.sigma, beta.sigma = beta.sigma)
+phi.tune <- 1 # potential number of steps to take for proposal of discrete uniform
+delta.0 <- 1 # rep(1, p)
+delta.1 <- 1 # rep(1, p)
+num.neighbors <- 10
+num.truncate <- t
+
+phi.lower <- 1
+phi.upper <- 1000
+N.phi <- 1000
+n.mcmc <- 10000
+n.burn <- floor(n.mcmc / 5)
+
+params <- list(n.mcmc = n.mcmc, phi.lower = phi.lower, phi.upper = phi.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate, alpha.P = alpha.P, beta.P = beta.P, alpha.I = alpha.I, beta.I = beta.I, alpha.sigma = alpha.sigma, beta.sigma = beta.sigma)
 
 ##
 ## fit MCMC
 ##
 
 start <- Sys.time()
-out <- mcmc(WI, WP, HI, HP, params, method = 'continuous')
+out <- mcmc.cont(WI, WP, HI, HP, params)
 finish <- Sys.time() - start
 finish
+
+make.output.plot(out, method = 'continuous')
 
 # jpeg(file = '~/barcast/plots/ContinuouscomparisonPlot.jpeg', width = 6, height = 6, quality = 100, res  = 600, units = 'in')  
 layout(matrix(1:3, nrow = 3, ncol = 1))
 matplot(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[ - 1], type = 'l', main = paste('fitted PDSI, runtime for 10000 iterations = ', round(finish, digits = 2), " minutes", sep = ""), ylab = 'PDSI', ylim = c(-4, 4))
+matplot(apply(out$trend.save[, n.burn:n.mcmc], 1, mean), type = 'l', add = TRUE, col = 'dark green')
 abline(h = 0, col = 'blue')
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, probs = 0.025)[ - 1], col = adjustcolor('red', alpha = 0.25))
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, quantile, probs = 0.975)[ - 1], col = adjustcolor('red', alpha = 0.25))
@@ -103,4 +108,8 @@ MSPE.val <- (apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val] - WI.t.val)^2
 matplot(MSPE.val, type = 'l', main = paste('MSPE error over validation', round(mean(MSPE.val), digits = 4)))
 matplot(WI.t.val, type = 'l', col = 'blue', main = 'Plot of fitted vs. held out PDSI')
 lines(apply(out$T.save[, n.burn:n.mcmc], 1, mean)[t.val], col = 'black')
+
+
 # dev.off()
+
+# save(out, file = paste('~/barcast/data/continuousFitOutput', date(), '.RData', sep = ''))
