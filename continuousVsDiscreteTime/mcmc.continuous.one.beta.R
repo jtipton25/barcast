@@ -64,6 +64,7 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   tZ <- vector('list', length = N.phi)
   Lambda <- vector('list', length = N.phi)
   Lambda.inv <- vector('list', length = N.phi)
+	det.Lambda <- rep(0, N.phi)
   for(i in 1:N.phi){
     Q <- exp( - D / phi.prior[i]) ## exponential covariance matrix
     pc <- prcomp(Q)
@@ -72,6 +73,7 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     tZ[[i]] <- t(Z[[i]])
     Lambda[[i]] <- diag((pc$sdev^2)[1:num.truncate])
     Lambda.inv[[i]] <- diag((1 / pc$sdev^2)[1:num.truncate])
+		det.Lambda[i] <- sum(log(pc$sdev[1:num.truncate]^2))
 #     Lambda[[i]] <- diag(pc$sdev^2)
 #     Lambda.inv[[i]] <- diag(1 / pc$sdev^2)
   }
@@ -209,9 +211,23 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
     ## sample tau.squared.P
     ##
     
-    tau.squared.P <- 1 / rgamma(1, alpha.P + NP / 2, beta.P + sum(sapply(1:t, make.tau.squared.P, beta.0 = beta.0, beta.1 = beta.1, T = T)) / 2)
+#     tau.squared.P <- 1 / rgamma(1, alpha.P + NP / 2, beta.P + sum(sapply(1:t, make.tau.squared.P, beta.0 = beta.0, beta.1 = beta.1, T = T)) / 2)
+		tau.squared.P <- 1 / rgamma(1, alpha.P + NP / 2, beta.P + sum((WP - beta.1.mat[, - 1] * HP * T.mat - beta.0.mat[, - 1] * HP)^2) / 2)
     Sigma.inv <- diag(c(1 / tau.squared.I, rep(1 / tau.squared.P, p)))
-    
+# 
+# 
+# sum((WP - beta.1.mat[, - 1] * HP * T.mat - beta.0.mat[, - 1] * HP)^2)
+#
+#
+# make.tau.squared.P <- function(i, beta.0, beta.1, T){
+# 	## only calculate for observed T
+# 	#     if(HI[i] == 0){
+# 	#       tmp <- 0
+# 	#     } else {
+# 	tmp <- (WP[i, ] - beta.1 * HP[i, ] * T[i] - beta.0 * HP[i, ])
+# 	#     }
+# 	return(t(tmp) %*% tmp)
+# }
     ##
     ## sample alpha
     ##
@@ -242,8 +258,8 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
 		if(phi.idx.star < 1){
 			phi.idx.star <- 1
 		}
-      mh1 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx.star]] %*% alpha + talpha %*% alpha) - 1 / 2 * talpha %*% Lambda.inv[[phi.idx.star]] %*% alpha
- 			mh2 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx]] %*% alpha + talpha %*% alpha) - 1 / 2 * talpha %*% Lambda.inv[[phi.idx]] %*% alpha
+      mh1 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx.star]] %*% alpha + talpha %*% alpha) - 1 / 2 * det.Lambda[phi.idx.star] - 1 / 2 * talpha %*% Lambda.inv[[phi.idx.star]] %*% alpha
+ 			mh2 <- - 1 / (2 * sigma.squared) * ( - 2 * t(T) %*% Z[[phi.idx]] %*% alpha + talpha %*% alpha) - 1 / 2 * det.Lambda[phi.idx] - 1 / 2 * talpha %*% Lambda.inv[[phi.idx]] %*% alpha
 #       rm(tmp)
       mh <- exp(mh1 - mh2)
       if(mh > runif(1)){
