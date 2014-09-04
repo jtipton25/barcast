@@ -59,16 +59,16 @@ alpha.sigma <- 2
 beta.sigma <- 2
 curve(dinvgamma(x, alpha.sigma, beta.sigma), 0, 10)
 
-phi.squared.lower <- 30
-phi.squared.upper <- 50
+phi.lower <- 30
+phi.upper <- 50
 N.phi <- 100
 phi.tune <- 1 # potential number of steps to take for proposal of discrete uniform
-delta.0 <- rep(1, p)
-delta.1 <- rep(1, p)
+delta.0 <- 1 #rep(1, p)
+delta.1 <- 1 #rep(1, p)
 num.neighbors <- 10
 num.truncate <- 100
 
-params <- list(n.mcmc = n.mcmc, phi.squared.lower = phi.squared.lower, phi.squared.upper = phi.squared.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate, alpha.P = alpha.P, beta.P = beta.P, alpha.I = alpha.I, beta.I = beta.I, alpha.sigma = alpha.sigma, beta.sigma = beta.sigma)
+params <- list(n.mcmc = n.mcmc, phi.lower = phi.lower, phi.upper = phi.upper, N.phi = N.phi, phi.tune = phi.tune, delta.0 = delta.0, delta.1 = delta.1, num.neighbors = num.neighbors, num.truncate = num.truncate, alpha.P = alpha.P, beta.P = beta.P, alpha.I = alpha.I, beta.I = beta.I, alpha.sigma = alpha.sigma, beta.sigma = beta.sigma)
 
 ##
 ## fit MCMC
@@ -101,3 +101,15 @@ abline(h = 0)
 
 # make.output.plot(out, method = 'continuous', file = '~/barcast/plots/ContinuousFitJune19.jpeg')
 # make.output.plot(out, method = 'continuous')
+
+# save(out, file = '~/barcast/data/coopMeetingContinuousModelFit.RData')
+
+year <- 2005 - (556:1)
+# jpeg(file = '~/barcast/plots/continuousReconstruction.jpeg', width = 18, height = 6, quality = 100, res  = 600, units = 'in')
+matplot(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, median), type = 'l', col = adjustcolor('black', alpha.f = 0.5), main = 'Reconstruction of PDSI', ylab = 'PDSI', xlab = 'Year', xaxt = 'n')
+lines(WI, , col = adjustcolor('blue', alpha.f = 0.5))
+lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
+lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
+abline(h = 0)
+axis(1, at = 1:length(year), labels = year)
+# dev.off()

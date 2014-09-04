@@ -46,9 +46,11 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   n.o <- length(which(WI != 0))
   n.u <- length(which(WI == 0))
   W <- cbind(WI, WP)
-  Delta.0 <- diag(delta.0)
-  Delta.1 <- diag(delta.1)
-  
+#   Delta.0 <- diag(delta.0)
+#   Delta.1 <- diag(delta.1)
+#   Delta.0.inv <- diag( 1 / delta.0)
+#   Delta.1.inv <- diag( 1 / delta.1)
+
   NI.t <- vector(length = t)
   NP.t <- vector(length = t)
   for(i in 1:t){
@@ -99,7 +101,8 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
   #   beta.0 <- rMVN(chol(tau.squared.P * solve(Delta.0)), rep(0, p))
   beta.0 <- 0
   #   beta.1 <- rMVN(chol(tau.squared.P * solve(Delta.1)), rep(0, p))
-  beta.1 <- rMVN(chol(tau.squared.P * 1 / Delta.1), 0)
+#   beta.1 <- rMVN(chol(tau.squared.P * Delta.1.inv), 0)
+  beta.1 <- rMVN(sqrt(tau.squared.P * 1 / delta.1), 0)
 	J <- rep(1, p)
 	beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
 	beta.0.mat <- matrix(c(0, beta.0 * J), nrow = t, ncol = p + 1, byrow = TRUE)
@@ -196,7 +199,7 @@ mcmc.cont <- function(WI, WP, HI, HP, params){
 #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1[1])), b / tau.squared.P)
     #     beta.1 <- rMVN(chol(1 / tau.squared.P * (A.tmp + Delta.1)), b / tau.squared.P)
 # 		beta.1 <- rMVN(chol((sum(NP.t[t.o] * T[t.o]^2) + Delta.1) / tau.squared.P), sum(apply((T.mat * HP) * (WP), 1, sum)[t.o]) / tau.squared.P)
-		beta.1 <- rMVN(chol((sum(NP.t * T^2) + Delta.1) / tau.squared.P), sum((T.mat * HP) * (WP - HP * beta.0.mat[, - 1])) / tau.squared.P)	 
+		beta.1 <- rMVN(chol((sum(NP.t * T^2) + delta.1) / tau.squared.P), sum((T.mat * HP) * (WP - HP * beta.0.mat[, - 1])) / tau.squared.P)	 
 #     rm(A.tmp)
 #     rm(b)
 		beta.1.mat <- matrix(c(1, beta.1 * J), nrow = t, ncol = p + 1, byrow = TRUE)
