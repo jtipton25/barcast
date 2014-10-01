@@ -102,27 +102,31 @@ abline(h = 0)
 # make.output.plot(out, method = 'continuous', file = '~/barcast/plots/ContinuousFitJune19.jpeg')
 # make.output.plot(out, method = 'continuous')
 
-# save(out, file = '~/barcast/data/coopMeetingContinuousModelFit.RData')
+# save(out, WI, file = '~/barcast/data/coopMeetingContinuousModelFit10_01_2014.RData')
 # load(file = '~/barcast/data/coopMeetingContinuousModelFit.RData')
+# load(file = '~/barcast/data/continuousFitOutputThu Jul 17 14:11:41 2014.RData')
+# load(file = '~/barcast/data/coopMeetingContinuousModelFit10_01_2014.RData')
 year <- 2005 - (556:1)
 t <- length(year)
-idx <- 0:19
 
-pederson <- read.table(file = '~/NYCDroughtPederson.txt', sep = '', header = TRUE)
+
+pederson <- read.table(file = '~/Google Drive/NYCDroughtPederson.txt', sep = '', header = TRUE)
 pederson$YEAR[1:474]
 
 
 # jpeg(file = '~/barcast/plots/continuousReconstructionPederson.jpeg', width = 18, height = 6, quality = 100, res  = 600, units = 'in')
 matplot(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, median), type = 'l', col = adjustcolor('black', alpha.f = 0.5), main = 'Reconstruction of PDSI', ylab = 'PDSI', xlab = 'Year', xaxt = 'n')
 matplot(c(rep(NA, 82), pederson$drought[1:474]), add = TRUE, type = 'l', col = adjustcolor('red', alpha.f = 0.5))
+matplot(c(rep(NA, length(WI[WI == 0]) - 1), WI[WI!=0], NA), type = 'l', add = TRUE, col = adjustcolor('blue', alpha.f = 0.5))
 # lines(WI, , col = adjustcolor('blue', alpha.f = 0.5))
 # lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
 # lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
 
 axis(1, at = c(2 + (0:11) * 50), labels = year[c(2 + (0:11) * 50)])
+idx <- 0:19
 for(i in 1:19){
-  polygon(c(1:t, t:1), c(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 + (idx[i + 1]) / 40)), rev(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 + idx[i] / 40)))), col = adjustcolor('grey80', alpha.f = (1 - idx[i] / 40)), border = NA)  
-  polygon(c(1:t, t:1), c(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 - (idx[i + 1]) / 40)), rev(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 - idx[i] / 40)))), col = adjustcolor('grey80', alpha.f = (1 - idx[i] / 40)), border = NA)  
+  polygon(c(1:t, t:1), c(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 + (idx[i + 1]) / 40)), rev(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 + idx[i] / 40)))), col = adjustcolor('grey80', alpha.f = (1 - idx[i] / 20)), border = NA)  
+  polygon(c(1:t, t:1), c(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 - (idx[i + 1]) / 40)), rev(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = (0.5 - idx[i] / 40)))), col = adjustcolor('grey80', alpha.f = (1 - idx[i] / 20)), border = NA)  
 }
 # abline(h = 0, col = adjustcolor('black', alpha.f = 0.5))
 # dev.off()
