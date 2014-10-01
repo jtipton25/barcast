@@ -103,13 +103,18 @@ abline(h = 0)
 # make.output.plot(out, method = 'continuous')
 
 # save(out, file = '~/barcast/data/coopMeetingContinuousModelFit.RData')
-
+# load(file = '~/barcast/data/coopMeetingContinuousModelFit.RData')
 year <- 2005 - (556:1)
 t <- length(year)
 idx <- 0:19
 
-# jpeg(file = '~/barcast/plots/continuousReconstruction.jpeg', width = 18, height = 6, quality = 100, res  = 600, units = 'in')
+pederson <- read.table(file = '~/NYCDroughtPederson.txt', sep = '', header = TRUE)
+pederson$YEAR[1:474]
+
+
+# jpeg(file = '~/barcast/plots/continuousReconstructionPederson.jpeg', width = 18, height = 6, quality = 100, res  = 600, units = 'in')
 matplot(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, median), type = 'l', col = adjustcolor('black', alpha.f = 0.5), main = 'Reconstruction of PDSI', ylab = 'PDSI', xlab = 'Year', xaxt = 'n')
+matplot(c(rep(NA, 82), pederson$drought[1:474]), add = TRUE, type = 'l', col = adjustcolor('red', alpha.f = 0.5))
 # lines(WI, , col = adjustcolor('blue', alpha.f = 0.5))
 # lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.025), col = adjustcolor('red', alpha.f = 0.25))
 # lines(apply(out$T.save[, (dim(out$T.save)[2] / 5) : dim(out$T.save)[2]], 1, quantile, prob = 0.975), col = adjustcolor('red', alpha.f = 0.25))
